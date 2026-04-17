@@ -1,0 +1,302 @@
+{
+  "project_info": {
+    "project_number": "1051833034775",
+    "firebase_url": "https://car1wrgoo-default-rtdb.firebaseio.com",
+    "project_id": "car1wrgoo",
+    "storage_bucket": "car1wrgoo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1051833034775:android:0d8f7a14c39037716f5452",
+        "android_client_info": {
+          "package_name": "com.example.aquarway"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1051833034775-5mbsj7o1i1jevjpber3d5q3edetui7r8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkHU-Pi7YXZ0LTbRWaaYECla74kzJW_1c"
+        },
+        {
+          "current_key": "AIzaSyArhNZ4QCA0b4EAXtQ-Frmg0Qrmc0Fv85I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1051833034775-5mbsj7o1i1jevjpber3d5q3edetui7r8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1051833034775-2osol6mf13pdse9lrdn11vhmkubo11q0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "net.lyro.driver"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1051833034775:android:ea6a9642d20e0d756f5452",
+        "android_client_info": {
+          "package_name": "net.devvace.home"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1051833034775-5mbsj7o1i1jevjpber3d5q3edetui7r8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkHU-Pi7YXZ0LTbRWaaYECla74kzJW_1c"
+        },
+        {
+          "current_key": "AIzaSyArhNZ4QCA0b4EAXtQ-Frmg0Qrmc0Fv85I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1051833034775-5mbsj7o1i1jevjpber3d5q3edetui7r8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1051833034775-2osol6mf13pdse9lrdn11vhmkubo11q0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "net.lyro.driver"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1051833034775:android:e60560c9181b48fd6f5452",
+        "android_client_info": {
+          "package_name": "net.lyro.driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1051833034775-5ajfcmmmqfa0be7gqi0amktp29kvvlv5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.lyro.driver",
+            "certificate_hash": "b5b8c7c79bb879f0a06293bf90effb7d794ced26"
+          }
+        },
+        {
+          "client_id": "1051833034775-88r396vtpgbun032hcb8jkmmjk6a4vgf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.lyro.driver",
+            "certificate_hash": "9b0209cb92e695e5ba4483fd158619e938da5645"
+          }
+        },
+        {
+          "client_id": "1051833034775-d06qrlh8oahp5qgdme42u05uqh0nja46.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.lyro.driver",
+            "certificate_hash": "6a37ddc18da6c33bf374e1530e9d8730b5ed17e7"
+          }
+        },
+        {
+          "client_id": "1051833034775-ph0cfs71v1guouru3n0imbhpdu23c2b0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.lyro.driver",
+            "certificate_hash": "b2dbff81f5269329ffac959c853298a126339a85"
+          }
+        },
+        {
+          "client_id": "1051833034775-5mbsj7o1i1jevjpber3d5q3edetui7r8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkHU-Pi7YXZ0LTbRWaaYECla74kzJW_1c"
+        },
+        {
+          "current_key": "AIzaSyArhNZ4QCA0b4EAXtQ-Frmg0Qrmc0Fv85I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1051833034775-5mbsj7o1i1jevjpber3d5q3edetui7r8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1051833034775-2osol6mf13pdse9lrdn11vhmkubo11q0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "net.lyro.driver"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1051833034775:android:0a8f990f80593b616f5452",
+        "android_client_info": {
+          "package_name": "net.lyro.taxi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1051833034775-7b0n2n0mjv0he17tno2g3evb34dbdal8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.lyro.taxi",
+            "certificate_hash": "b2dbff81f5269329ffac959c853298a126339a85"
+          }
+        },
+        {
+          "client_id": "1051833034775-ibo7fqlge8deia5gq12bfr29r4q9l8bd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.lyro.taxi",
+            "certificate_hash": "b5b8c7c79bb879f0a06293bf90effb7d794ced26"
+          }
+        },
+        {
+          "client_id": "1051833034775-jgb1124met0v8spqjuiq3t8d8pi83v6b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.lyro.taxi",
+            "certificate_hash": "9b0209cb92e695e5ba4483fd158619e938da5645"
+          }
+        },
+        {
+          "client_id": "1051833034775-vj916n0fqdjlmlhkggo3t5v9lo3inkoh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.lyro.taxi",
+            "certificate_hash": "6a37ddc18da6c33bf374e1530e9d8730b5ed17e7"
+          }
+        },
+        {
+          "client_id": "1051833034775-5mbsj7o1i1jevjpber3d5q3edetui7r8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkHU-Pi7YXZ0LTbRWaaYECla74kzJW_1c"
+        },
+        {
+          "current_key": "AIzaSyArhNZ4QCA0b4EAXtQ-Frmg0Qrmc0Fv85I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1051833034775-5mbsj7o1i1jevjpber3d5q3edetui7r8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1051833034775-2osol6mf13pdse9lrdn11vhmkubo11q0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "net.lyro.driver"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1051833034775:android:ef0179827337394b6f5452",
+        "android_client_info": {
+          "package_name": "net.stack.carswrgoo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1051833034775-074f7mus746pvaf9ob6aqa42hc5k2sjh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.stack.carswrgoo",
+            "certificate_hash": "9b0209cb92e695e5ba4483fd158619e938da5645"
+          }
+        },
+        {
+          "client_id": "1051833034775-39ttnmvbo4fa2pcul6a14abu8gol2mqh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.stack.carswrgoo",
+            "certificate_hash": "6a37ddc18da6c33bf374e1530e9d8730b5ed17e7"
+          }
+        },
+        {
+          "client_id": "1051833034775-kiho2ifh1vp28412he15fcv16a9q5jjv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.stack.carswrgoo",
+            "certificate_hash": "b5b8c7c79bb879f0a06293bf90effb7d794ced26"
+          }
+        },
+        {
+          "client_id": "1051833034775-r8g0keedsehhgtubjnlt06ufj2jil17a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.stack.carswrgoo",
+            "certificate_hash": "b2dbff81f5269329ffac959c853298a126339a85"
+          }
+        },
+        {
+          "client_id": "1051833034775-5mbsj7o1i1jevjpber3d5q3edetui7r8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkHU-Pi7YXZ0LTbRWaaYECla74kzJW_1c"
+        },
+        {
+          "current_key": "AIzaSyArhNZ4QCA0b4EAXtQ-Frmg0Qrmc0Fv85I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1051833034775-5mbsj7o1i1jevjpber3d5q3edetui7r8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1051833034775-2osol6mf13pdse9lrdn11vhmkubo11q0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "net.lyro.driver"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
