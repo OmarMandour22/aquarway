@@ -65,7 +65,12 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   alignment: Alignment.topRight,
                   child: TextButton(
                     onPressed: () {
-                      controller.jumpToPage(pages.length - 1);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LetsStart(),
+                        ),
+                      );
                     },
                     child: const Text("Skip"),
                   ),
@@ -115,24 +120,17 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   width: double.infinity,
                   height: 55,
                   child: ElevatedButton(
-
                     style: ElevatedButton.styleFrom(
-
-                      backgroundColor: AppColors.grenblak, // اللون اللي تحبه
-
+                      backgroundColor: AppColors.grenblak,
                     ),
                     onPressed: () {
                       if (currentPage == pages.length - 1) {
-
-
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const LetsStart(),
                           ),
                         );
-
-                        ;
                       } else {
                         controller.nextPage(
                           duration: const Duration(milliseconds: 500),
@@ -141,7 +139,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                       }
                     },
                     child: Text(
-                      currentPage == pages.length - 1 ? "Get Started" : "Next",
+                      currentPage == pages.length - 1
+                          ? "Get Started"
+                          : "Next",
+                      style: const TextStyle(
+                        color: Colors.white, // 👈 اتضافت هنا
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -153,7 +158,6 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     );
   }
 
-  /// شكل الصفحة مع تأثير النصوص
   Widget buildPage({
     required String image,
     required String title,
@@ -169,10 +173,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           height: 320,
           fit: BoxFit.cover,
         ),
-
         const SizedBox(height: 40),
 
-        /// العنوان مع Fade + Slide
         AnimatedSlide(
           offset: active ? Offset.zero : const Offset(0, 0.3),
           duration: const Duration(milliseconds: 500),
@@ -192,7 +194,6 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
         const SizedBox(height: 10),
 
-        /// الوصف مع Fade + Slide
         AnimatedSlide(
           offset: active ? Offset.zero : const Offset(0, 0.3),
           duration: const Duration(milliseconds: 700),

@@ -22,10 +22,11 @@ class PropertyRepo {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return Left("No user logged in");
 
-      String id = model.id ?? _firestore.collection('properties').doc().id;
+      String id =
+          model.id ?? _firestore.collection('properties').doc().id;
 
       /// =====================
-      /// UPLOAD IMAGES
+      /// IMAGES UPLOAD
       /// =====================
       List<String> imageUrls = model.images ?? [];
 
@@ -42,7 +43,7 @@ class PropertyRepo {
       }
 
       /// =====================
-      /// UPLOAD VIDEOS
+      /// VIDEOS UPLOAD
       /// =====================
       List<String> videoUrls = model.videos ?? [];
 
@@ -66,7 +67,7 @@ class PropertyRepo {
       model.images = imageUrls;
       model.videos = videoUrls;
 
-      /// 🔥 SMART SEARCH (FIXED - بدون حذف أي حاجة)
+      /// 🔥 SEARCH (safe + lowercase)
       List<String> keywords = [];
 
       String fullText =
@@ -85,7 +86,7 @@ class PropertyRepo {
       model.searchKeywords = keywords;
 
       /// =====================
-      /// SAVE TO FIRESTORE
+      /// SAVE FIRESTORE
       /// =====================
       await _firestore.collection('properties').doc(id).set(
         model.toJson(),
@@ -174,7 +175,7 @@ class PropertyRepo {
   }
 
   /// =========================
-  /// GET ALL PROPERTIES
+  /// ALL PROPERTIES
   /// =========================
   Stream<List<PropertyModel>> getProperties() {
     return _firestore
@@ -183,15 +184,13 @@ class PropertyRepo {
         .limit(20)
         .snapshots()
         .map((snapshot) {
-      try {
-        return snapshot.docs.map((doc) {
-          final data = doc.data();
-          data['createdAt'] ??= Timestamp.now();
-          return PropertyModel.fromJson(data);
-        }).toList();
-      } catch (_) {
-        return [];
-      }
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+
+        data['createdAt'] = data['createdAt'] ?? Timestamp.now();
+
+        return PropertyModel.fromJson(data);
+      }).toList();
     });
   }
 
@@ -205,20 +204,18 @@ class PropertyRepo {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      try {
-        return snapshot.docs.map((doc) {
-          final data = doc.data();
-          data['createdAt'] ??= Timestamp.now();
-          return PropertyModel.fromJson(data);
-        }).toList();
-      } catch (_) {
-        return [];
-      }
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+
+        data['createdAt'] = data['createdAt'] ?? Timestamp.now();
+
+        return PropertyModel.fromJson(data);
+      }).toList();
     });
   }
 
   /// =========================
-  /// 🔥 SEARCH (FIXED)
+  /// SEARCH
   /// =========================
   Stream<List<PropertyModel>> searchProperties(String query) {
     final q = query.toLowerCase().trim();
@@ -232,15 +229,13 @@ class PropertyRepo {
         .where('searchKeywords', arrayContains: q)
         .snapshots()
         .map((snapshot) {
-      try {
-        return snapshot.docs.map((doc) {
-          final data = doc.data();
-          data['createdAt'] ??= Timestamp.now();
-          return PropertyModel.fromJson(data);
-        }).toList();
-      } catch (_) {
-        return [];
-      }
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+
+        data['createdAt'] = data['createdAt'] ?? Timestamp.now();
+
+        return PropertyModel.fromJson(data);
+      }).toList();
     });
   }
 

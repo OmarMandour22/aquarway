@@ -18,22 +18,42 @@ class AddPropertyView extends StatelessWidget {
   final locationController = TextEditingController();
   final priceController = TextEditingController();
 
-  final List<String> types = [
-    "شقق",
-    "فنادق",
-    "فيلات",
-    "محلات",
-    "مراكز تدريب",
-    "اراضي",
-    "شقق للمغتربين",
+  /// 🔥 NEW TYPES
+  final List<Map<String, String>> types = [
+    {"label": "شقق", "value": "apartment"},
+    {"label": "فنادق", "value": "hotel"},
+    {"label": "فيلات", "value": "villa"},
+    {"label": "محلات", "value": "shop"},
+    {"label": "مراكز تدريب", "value": "training"},
+    {"label": "اراضي", "value": "land"},
+    {"label": "شقق للمغتربين", "value": "expat"},
   ];
 
-  final List<String> statuses = [
-    "للبيع",
-    "للإيجار",
-  ];
+  final List<String> statuses = ["للبيع", "للإيجار"];
 
   final ImagePicker _picker = ImagePicker();
+
+  /// 🔥 FIX (mapping old → new)
+  String normalizeType(String? value) {
+    switch (value) {
+      case "فيلات":
+        return "villa";
+      case "شقق":
+        return "apartment";
+      case "فنادق":
+        return "hotel";
+      case "محلات":
+        return "shop";
+      case "مراكز تدريب":
+        return "training";
+      case "اراضي":
+        return "land";
+      case "شقق للمغتربين":
+        return "expat";
+      default:
+        return value ?? "";
+    }
+  }
 
   Future<void> _pickImages(BuildContext context) async {
     final cubit = context.read<PropertyCubit>();
@@ -45,7 +65,8 @@ class AddPropertyView extends StatelessWidget {
 
   Future<void> _pickVideo(BuildContext context) async {
     final cubit = context.read<PropertyCubit>();
-    final XFile? pickedFile = await _picker.pickVideo(source: ImageSource.gallery);
+    final XFile? pickedFile =
+    await _picker.pickVideo(source: ImageSource.gallery);
     if (pickedFile != null) {
       cubit.pickVideo([File(pickedFile.path)]);
     }
@@ -53,20 +74,20 @@ class AddPropertyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cubit = context.watch<PropertyCubit>();
+    final cubit = context.watch<PropertyCubit>();
 
-    /// ✅ تحميل البيانات مرة واحدة بس
+    /// 🔥 FIXED LOAD
     if (existingModel != null && titleController.text.isEmpty) {
       titleController.text = existingModel!.title ?? "";
       descController.text = existingModel!.description ?? "";
       locationController.text = existingModel!.location ?? "";
       priceController.text = existingModel!.price ?? "";
-      cubit.selectedType ??= existingModel!.type;
+
+      cubit.selectedType ??= normalizeType(existingModel!.type);
       cubit.selectedStatus ??= existingModel!.status;
       cubit.rooms ??= existingModel!.rooms;
       cubit.beds ??= existingModel!.beds;
 
-      /// ❌ متحولش URL لـ File
       cubit.images = [];
       cubit.videos = [];
     }
@@ -89,113 +110,123 @@ class AddPropertyView extends StatelessWidget {
         return Scaffold(
           backgroundColor: Colors.grey[100],
           appBar: AppBar(
-              title: Text(existingModel != null ? "تعديل العقار" : "Add Property")),
+            title: Text(existingModel != null ? "تعديل العقار" : "Add Property"),
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
-                /// 🖼️ Images + 🎥 Videos
+                /// 🔥 IMAGES + VIDEOS
                 SizedBox(
-                  height: 120,
+                  height: 140,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: [
+
                       GestureDetector(
                         onTap: () => _pickImages(context),
                         child: _addBox(Icons.image, "صور"),
                       ),
+
                       const SizedBox(width: 10),
+
                       GestureDetector(
                         onTap: () => _pickVideo(context),
                         child: _addBox(Icons.video_call, "فيديو"),
                       ),
+
                       const SizedBox(width: 10),
 
-                      /// ✅ صور قديمة من Firebase
+                      /// OLD IMAGES
                       if (existingModel?.images != null)
-                        ...existingModel!.images!.map((url) => Padding(
+                        ...existingModel!.images!.map((url) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Image.network(
+                                    url,
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Positioned(
+                                  top: -5,
+                                  right: -5,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.close,
+                                        color: Colors.red),
+                                    onPressed: () {
+                                      existingModel!.images!.remove(url);
+                                      (context as Element).markNeedsBuild();
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+
+                      /// NEW IMAGES
+                      ...cubit.images.map((img) {
+                        return Padding(
                           padding: const EdgeInsets.only(right: 10),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: Image.network(
-                              url,
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        )),
-
-                      /// ✅ صور جديدة من الجهاز
-                      ...cubit.images.map((img) => Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: Image.file(
-                                img,
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Positioned(
-                              top: -5,
-                              right: -5,
-                              child: IconButton(
-                                icon: const Icon(Icons.close, color: Colors.red),
-                                onPressed: () {
-                                  cubit.removeImage(img);
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
-
-                      /// فيديوهات (زي ما هي)
-                      ...cubit.videos.map((vid) => Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                color: Colors.black12,
+                          child: Stack(
+                            children: [
+                              ClipRRect(
                                 borderRadius: BorderRadius.circular(15),
+                                child: Image.file(
+                                  img,
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
-                              child: const Icon(Icons.play_arrow, size: 40),
-                            ),
-                            Positioned(
-                              top: -5,
-                              right: -5,
-                              child: IconButton(
-                                icon: const Icon(Icons.close, color: Colors.red),
-                                onPressed: () {
-                                  cubit.removeVideo(vid);
-                                },
+                              Positioned(
+                                top: -5,
+                                right: -5,
+                                child: IconButton(
+                                  icon: const Icon(Icons.close,
+                                      color: Colors.red),
+                                  onPressed: () {
+                                    cubit.removeImage(img);
+                                  },
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      )),
+                            ],
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
-                _dropdownField("الحالة", statuses, cubit.selectedStatus, cubit.changeStatus),
-                const SizedBox(height: 15),
-                _dropdownField("نوع العقار", types, cubit.selectedType, cubit.changeType),
+                _dropdownField(
+                  "الحالة",
+                  statuses,
+                  cubit.selectedStatus,
+                  cubit.changeStatus,
+                ),
 
                 const SizedBox(height: 15),
 
-                if (cubit.selectedType == "شقق للمغتربين") ...[
+                _dropdownFieldType(
+                  "نوع العقار",
+                  types,
+                  cubit.selectedType,
+                  cubit.changeType,
+                ),
+
+                const SizedBox(height: 15),
+
+                if (cubit.selectedType == "expat") ...[
                   Row(
                     children: [
                       Expanded(
@@ -297,7 +328,10 @@ class AddPropertyView extends StatelessWidget {
   }
 
   Widget _dropdownField(
-      String hint, List<String> items, String? value, Function(String) onChanged) {
+      String hint,
+      List<String> items,
+      String? value,
+      Function(String) onChanged) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
@@ -307,7 +341,37 @@ class AddPropertyView extends StatelessWidget {
       child: DropdownButtonFormField<String>(
         value: value,
         hint: Text(hint),
-        items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+        items: items
+            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .toList(),
+        onChanged: (val) {
+          if (val != null) onChanged(val);
+        },
+        decoration: const InputDecoration(border: InputBorder.none),
+      ),
+    );
+  }
+
+  Widget _dropdownFieldType(
+      String hint,
+      List<Map<String, String>> items,
+      String? value,
+      Function(String) onChanged) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: DropdownButtonFormField<String>(
+        value: value,
+        hint: Text(hint),
+        items: items.map((e) {
+          return DropdownMenuItem(
+            value: e["value"],
+            child: Text(e["label"]!),
+          );
+        }).toList(),
         onChanged: (val) {
           if (val != null) onChanged(val);
         },

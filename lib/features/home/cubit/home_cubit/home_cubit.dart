@@ -9,10 +9,19 @@ class HomeCubit extends Cubit<HomeState> {
 
   int currentIndex = 0;
 
+  /// 🔥 NEW: Category filter state
+  String selectedCategory = "all";
+
   /// 🔁 Navigation
   void changeIndex(int index) {
     currentIndex = index;
     emit(HomeChangeIndex(index: index));
+  }
+
+  /// 🔥 Change Category
+  void changeCategory(String category) {
+    selectedCategory = category;
+    emit(HomeChangeIndex(index: currentIndex)); // reuse state
   }
 
   /// 🚪 Logout

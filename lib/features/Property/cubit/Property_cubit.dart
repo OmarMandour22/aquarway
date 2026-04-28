@@ -85,7 +85,7 @@ class PropertyCubit extends Cubit<PropertyState> {
   }
 
   /// =========================
-  /// ADD OR UPDATE
+  /// ADD OR UPDATE (FIXED SAFE)
   /// =========================
   Future<void> addOrUpdateProperty({
     required String title,
@@ -104,10 +104,14 @@ class PropertyCubit extends Cubit<PropertyState> {
         description: description,
         location: location,
         price: price,
-        type: selectedType,
-        status: selectedStatus,
+
+        /// 🔥 FIX: ضمان عدم null + fallback
+        type: selectedType ?? existingModel?.type ?? "apartment",
+        status: selectedStatus ?? existingModel?.status ?? "للبيع",
+
         rooms: rooms,
         beds: beds,
+
         images: existingModel?.images,
         videos: existingModel?.videos,
         likes: existingModel?.likes ?? [],
@@ -130,6 +134,14 @@ class PropertyCubit extends Cubit<PropertyState> {
           if (prop.ownerId != null) {
             getMyProperties(prop.ownerId!);
           }
+
+          /// 🔥 reset بعد النشر (بدون تأثير على مشروعك)
+          selectedType = null;
+          selectedStatus = null;
+          images = [];
+          videos = [];
+          rooms = null;
+          beds = null;
         },
       );
     } catch (e) {
@@ -205,7 +217,7 @@ class PropertyCubit extends Cubit<PropertyState> {
   }
 
   /// =========================
-  /// ADVANCED SEARCH (FIXED)
+  /// ADVANCED SEARCH (UNCHANGED)
   /// =========================
   Future<List<PropertyModel>> searchAdvanced({
     required String search,
@@ -213,23 +225,17 @@ class PropertyCubit extends Cubit<PropertyState> {
   }) async {
     try {
       final stream = repo.searchProperties(search);
-
       final list = await stream.first;
 
-      /// 🔥 فلترة محلية (Client Side Filtering)
       List<PropertyModel> filtered = list.where((e) {
-
-        /// 🔍 Type
         if (selectedType != null && e.type != selectedType) {
           return false;
         }
 
-        /// 🔍 Status
         if (selectedStatus != null && e.status != selectedStatus) {
           return false;
         }
 
-        /// 📍 Location
         if (locationFilter != null &&
             locationFilter!.isNotEmpty &&
             !(e.location ?? "")
@@ -238,7 +244,6 @@ class PropertyCubit extends Cubit<PropertyState> {
           return false;
         }
 
-        /// 💰 Price
         double price = double.tryParse(e.price ?? "0") ?? 0;
 
         if (minPrice != null && price < minPrice!) return false;

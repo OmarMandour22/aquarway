@@ -27,7 +27,9 @@ class ProfileView extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => ProfileCubit()..getUserData()..checkIfFollowing(uid),
+          create: (_) => ProfileCubit()
+            ..getUserData()
+            ..checkIfFollowing(uid),
         ),
         BlocProvider(
           create: (_) => PropertyCubit(PropertyRepo())..getMyProperties(uid),
@@ -38,7 +40,8 @@ class ProfileView extends StatelessWidget {
         builder: (context, state) {
           var cubit = ProfileCubit.get(context);
           var user = cubit.userModel;
-          bool isMyProfile = FirebaseAuth.instance.currentUser?.uid == uid;
+          bool isMyProfile =
+              FirebaseAuth.instance.currentUser?.uid == uid;
 
           if (user == null) {
             return const Scaffold(
@@ -66,12 +69,15 @@ class ProfileView extends StatelessWidget {
                             Text(
                               user.username ?? "No Name",
                               style: const TextStyle(
-                                  fontSize: 22, fontWeight: FontWeight.bold),
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 15),
+
                             /// Posts Followers Following
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceEvenly,
                               children: [
                                 Column(
                                   children: [
@@ -89,7 +95,8 @@ class ProfileView extends StatelessWidget {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (_) => FollowersView(uid: user.id!),
+                                        builder: (_) =>
+                                            FollowersView(uid: user.id!),
                                       ),
                                     );
                                   },
@@ -110,7 +117,8 @@ class ProfileView extends StatelessWidget {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (_) => FollowingView(uid: user.id!),
+                                        builder: (_) =>
+                                            FollowingView(uid: user.id!),
                                       ),
                                     );
                                   },
@@ -128,13 +136,17 @@ class ProfileView extends StatelessWidget {
                                 ),
                               ],
                             ),
+
                             const SizedBox(height: 10),
+
                             Text(
                               user.email ?? "",
                               style: const TextStyle(
                                   fontSize: 16, color: Colors.grey),
                             ),
+
                             const SizedBox(height: 10),
+
                             Text(
                               user.phone ?? "Phone not added",
                               style: const TextStyle(fontSize: 16),
@@ -142,87 +154,149 @@ class ProfileView extends StatelessWidget {
                           ],
                         ),
                       ),
+
                       const SizedBox(width: 20),
-                      /// صورة البروفايل
+
                       CircleAvatar(
                         radius: 50,
-                        backgroundImage:
-                        user.image != null ? NetworkImage(user.image!) : null,
+                        backgroundImage: user.image != null
+                            ? NetworkImage(user.image!)
+                            : null,
                         child: user.image == null
                             ? const Icon(Icons.person, size: 40)
                             : null,
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 30),
+
                   /// Bio
                   Card(
                     child: ListTile(
                       leading: const Icon(Icons.info_outline),
                       title: const Text("Description"),
-                      subtitle: Text(user.bio ?? "Description not added"),
+                      subtitle:
+                      Text(user.bio ?? "Description not added"),
                     ),
                   ),
+
                   const SizedBox(height: 10),
+
                   /// Address
                   Card(
                     child: ListTile(
                       leading: const Icon(Icons.location_on_outlined),
                       title: const Text("Address"),
-                      subtitle: Text(user.address ?? "Address not added"),
+                      subtitle:
+                      Text(user.address ?? "Address not added"),
                     ),
                   ),
+
                   const SizedBox(height: 20),
-                  /// زرار Edit أو Follow
-                  SizedBox(
-                    width: double.infinity,
-                    child: isMyProfile
-                        ? ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BlocProvider.value(
-                              value: cubit,
-                              child: const EditProfileView(),
-                            ),
-                          ),
-                        );
-                      },
-                      child: const Text("Edit Profile"),
-                    )
-                        : ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.grenblak,
-                      ),
-                      onPressed: () {
-                        if (cubit.isFollowing) {
-                          cubit.unfollow(user.id!);
-                        } else {
-                          cubit.followUser(user.id!);
-                        }
-                      },
-                      child: Text(cubit.isFollowing ? "Unfollow" : "Follow"),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  /// زرار Add Property
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BlocProvider.value(
-                            value: propertyCubit,
-                            child: AddPropertyView(),
-                          ),
+
+                  /// زرار Edit / Follow
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: SizedBox(
+                      width: 160,
+                      height: 40,
+                      child: isMyProfile
+                          ? ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                          AppColors.grenblak,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.zero,
                         ),
-                      );
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text("Add Property"),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  BlocProvider.value(
+                                    value: cubit,
+                                    child:
+                                    const EditProfileView(),
+                                  ),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Edit Profile",
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white),
+                        ),
+                      )
+                          : ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                          AppColors.grenblak,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.zero,
+                        ),
+                        onPressed: () {
+                          if (cubit.isFollowing) {
+                            cubit.unfollow(user.id!);
+                          } else {
+                            cubit.followUser(user.id!);
+                          }
+                        },
+                        child: Text(
+                          cubit.isFollowing
+                              ? "Unfollow"
+                              : "Follow",
+                          style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.white),
+                        ),
+                      ),
+                    ),
                   ),
+
+                  const SizedBox(height: 15),
+
+                  /// زرار Add Property
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: SizedBox(
+                      width: 160,
+                      height: 40,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                          AppColors.grenblak,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.zero,
+                        ),
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  BlocProvider.value(
+                                    value: propertyCubit,
+                                    child: AddPropertyView(),
+                                  ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.add,
+                            size: 18,
+                            color: Colors.white),
+                        label: const Text(
+                          "Add Property",
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+
                   const SizedBox(height: 30),
+
                   /// My Properties
                   Text(
                     "My Properties",
@@ -232,18 +306,30 @@ class ProfileView extends StatelessWidget {
                       color: AppColors.grenblak,
                     ),
                   ),
+
                   const SizedBox(height: 10),
+
                   StreamBuilder<List<PropertyModel>>(
-                    stream: propertyCubit.myPropertiesStream(uid),
+                    stream:
+                    propertyCubit.myPropertiesStream(uid),
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                      if (!snapshot.hasData) {
+                        return const Center(
+                            child: CircularProgressIndicator());
+                      }
+
                       final list = snapshot.data!;
-                      if (list.isEmpty) return const Text("No properties yet");
+                      if (list.isEmpty) {
+                        return const Text("No properties yet");
+                      }
+
                       return ListView.builder(
                         shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
+                        physics:
+                        const NeverScrollableScrollPhysics(),
                         itemCount: list.length,
-                        itemBuilder: (_, i) => PropertyCard(model: list[i]),
+                        itemBuilder: (_, i) =>
+                            PropertyCard(model: list[i]),
                       );
                     },
                   ),

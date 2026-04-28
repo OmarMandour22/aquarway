@@ -3,6 +3,7 @@ import 'package:aquarway/features/Property/views/add_Property_views.dart';
 import 'package:aquarway/features/home/views/search_views.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../Property/cubit/Property_cubit.dart';
 import '../../Property/data/model/Property_model.dart';
 import '../../Property/data/repo/Property_repo.dart';
@@ -20,8 +21,6 @@ class HomeViews extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final searchController = TextEditingController();
-
-    /// 🔥 GlobalKey
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
     return MultiBlocProvider(
@@ -36,7 +35,7 @@ class HomeViews extends StatelessWidget {
               final cubit = HomeCubit.get(context);
 
               return Scaffold(
-                key: scaffoldKey, // 👈 مهم
+                key: scaffoldKey,
 
                 appBar: AppBar(
                   centerTitle: true,
@@ -46,7 +45,10 @@ class HomeViews extends StatelessWidget {
                     children: [
                       const Text(
                         "Home",
-                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(width: 20),
                       Text(
@@ -79,33 +81,34 @@ class HomeViews extends StatelessWidget {
 
                 endDrawer: AppDrawer(userModel: userModel),
 
-                /// 👇 BODY
                 body: cubit.currentIndex == 0
                     ? Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: TextField(
-                        controller: searchController,
-                        onChanged: (value) {
-                          context.read<PropertyCubit>().searchText = value;
-                        },
-                        decoration: InputDecoration(
-                          hintText: "Search properties...",
-                          prefixIcon: const Icon(Icons.search),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
+
+                    /// 🔥 CATEGORY BAR (FIXED)
+                    SizedBox(
+                      height: 50,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          _categoryChip(context, "All", "all", cubit),
+                          _categoryChip(context, "Villas", "villa", cubit),
+                          _categoryChip(context, "Apartments", "apartment", cubit),
+                          _categoryChip(context, "Land", "land", cubit),
+                          _categoryChip(context, "Hotels", "hotel", cubit),
+                          _categoryChip(context, "Shops", "shop", cubit),
+                          _categoryChip(context, "Training", "training", cubit),
+                          _categoryChip(context, "Expat", "expat", cubit),
+                        ],
                       ),
                     ),
+
+                    /// 📦 LIST
                     Expanded(
                       child: BlocBuilder<PropertyCubit, dynamic>(
                         builder: (context, state) {
-                          final propertyCubit = context.read<PropertyCubit>();
+                          final propertyCubit =
+                          context.read<PropertyCubit>();
 
                           final Stream<List<PropertyModel>> stream =
                           (propertyCubit.searchText.isNotEmpty)
@@ -121,7 +124,15 @@ class HomeViews extends StatelessWidget {
                                 );
                               }
 
-                              final list = snapshot.data!;
+                              List<PropertyModel> list = snapshot.data!;
+
+                              /// 🔥 FILTER BY CATEGORY (FIXED)
+                              if (cubit.selectedCategory != "all") {
+                                list = list
+                                    .where((e) =>
+                                e.type == cubit.selectedCategory)
+                                    .toList();
+                              }
 
                               if (list.isEmpty) {
                                 return const Center(
@@ -143,35 +154,34 @@ class HomeViews extends StatelessWidget {
                 )
                     : const Center(child: Text("Page")),
 
-                /// 🔥 زر الإضافة
-                  floatingActionButton: SizedBox(
-                    width: 45,
-                    height: 45,
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BlocProvider.value(
-                              value: context.read<PropertyCubit>(),
-                              child: AddPropertyView(),
-                            ),
+                /// ➕ ADD BUTTON
+                floatingActionButton: SizedBox(
+                  width: 45,
+                  height: 45,
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BlocProvider.value(
+                            value: context.read<PropertyCubit>(),
+                            child: AddPropertyView(),
                           ),
-                        );
-                      },
-                      backgroundColor: AppColors.grenblak,
-                      child: const Icon(
-                        Icons.add_home,
-                        size: 20,
-                        color: Colors.white,
-                      ),
+                        ),
+                      );
+                    },
+                    backgroundColor: AppColors.grenblak,
+                    child: const Icon(
+                      Icons.add_home,
+                      size: 20,
+                      color: Colors.white,
                     ),
                   ),
+                ),
 
                 floatingActionButtonLocation:
                 FloatingActionButtonLocation.centerDocked,
 
-                /// 🔥 Bottom Bar
                 bottomNavigationBar: BottomAppBar(
                   shape: const CircularNotchedRectangle(),
                   notchMargin: 8,
@@ -179,9 +189,7 @@ class HomeViews extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       IconButton(
-                        onPressed: () {
-                          cubit.changeIndex(0);
-                        },
+                        onPressed: () => cubit.changeIndex(0),
                         icon: Icon(
                           Icons.home,
                           color: cubit.currentIndex == 0
@@ -190,9 +198,7 @@ class HomeViews extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        onPressed: () {
-                          cubit.changeIndex(1);
-                        },
+                        onPressed: () => cubit.changeIndex(1),
                         icon: Icon(
                           Icons.favorite,
                           color: cubit.currentIndex == 1
@@ -200,13 +206,9 @@ class HomeViews extends StatelessWidget {
                               : Colors.grey,
                         ),
                       ),
-
                       const SizedBox(width: 40),
-
                       IconButton(
-                        onPressed: () {
-                          cubit.changeIndex(2);
-                        },
+                        onPressed: () => cubit.changeIndex(2),
                         icon: Icon(
                           Icons.person,
                           color: cubit.currentIndex == 2
@@ -214,18 +216,11 @@ class HomeViews extends StatelessWidget {
                               : Colors.grey,
                         ),
                       ),
-
-                      /// 🔥 فتح الدروور من تحت
                       IconButton(
                         onPressed: () {
                           scaffoldKey.currentState!.openEndDrawer();
                         },
-                        icon: Icon(
-                          Icons.menu,
-                          color: cubit.currentIndex == 3
-                              ? Colors.deepPurple
-                              : Colors.grey,
-                        ),
+                        icon: const Icon(Icons.menu),
                       ),
                     ],
                   ),
@@ -233,6 +228,24 @@ class HomeViews extends StatelessWidget {
               );
             },
           );
+        },
+      ),
+    );
+  }
+
+  Widget _categoryChip(
+      BuildContext context,
+      String label,
+      String value,
+      HomeCubit cubit,
+      ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: cubit.selectedCategory == value,
+        onSelected: (val) {
+          cubit.changeCategory(value);
         },
       ),
     );
