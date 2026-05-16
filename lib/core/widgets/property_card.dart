@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:aquarway/features/auth/data/model/user_model.dart';
+import 'package:aquarway/features/chat/views/chat_screen.dart';
 import '../../features/Property/cubit/Property_cubit.dart';
 import '../../features/Property/data/model/Property_model.dart';
 import '../../features/Property/views/add_Property_views.dart';
@@ -36,11 +38,15 @@ class _PropertyCardState extends State<PropertyCard> {
 
     return Card(
       margin: const EdgeInsets.all(10),
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
-          /// ================= HEADER (FIXED UI) =================
+          /// ================= HEADER (UNCHANGED) =================
           FutureBuilder<DocumentSnapshot>(
             future: FirebaseFirestore.instance
                 .collection('users')
@@ -51,7 +57,8 @@ class _PropertyCardState extends State<PropertyCard> {
               String image = "";
 
               if (snapshot.hasData && snapshot.data!.exists) {
-                final data = snapshot.data!.data() as Map<String, dynamic>;
+                final data =
+                snapshot.data!.data() as Map<String, dynamic>;
 
                 name = (data['name'] ??
                     data['username'] ??
@@ -59,9 +66,7 @@ class _PropertyCardState extends State<PropertyCard> {
                     "User")
                     .toString();
 
-                image = (data['image'] ??
-                    data['photo'] ??
-                    "")
+                image = (data['image'] ?? data['photo'] ?? "")
                     .toString();
               }
 
@@ -70,7 +75,6 @@ class _PropertyCardState extends State<PropertyCard> {
                 child: Row(
                   children: [
 
-                    /// ================= LEFT: DOTS MENU =================
                     if (isOwner)
                       PopupMenuButton<String>(
                         onSelected: (value) {
@@ -115,27 +119,42 @@ class _PropertyCardState extends State<PropertyCard> {
                           }
                         },
                         itemBuilder: (_) => const [
-                          PopupMenuItem(
-                              value: 'edit', child: Text("تعديل")),
-                          PopupMenuItem(
-                              value: 'delete', child: Text("حذف")),
+                          PopupMenuItem(value: 'edit', child: Text("تعديل")),
+                          PopupMenuItem(value: 'delete', child: Text("حذف")),
                         ],
                       ),
 
                     const SizedBox(width: 10),
 
-                    /// ================= RIGHT: USER =================
                     Expanded(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
-                            name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+
+                              Text(
+                                name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+
+                              const SizedBox(height: 4),
+
+                              Row(
+                                children: [
+                                  _smallTag(widget.model.type ?? ""),
+                                  const SizedBox(width: 4),
+                                  _smallTag(widget.model.status ?? ""),
+                                ],
+                              ),
+                            ],
                           ),
+
                           const SizedBox(width: 8),
+
                           CircleAvatar(
                             radius: 18,
                             backgroundImage:
@@ -161,30 +180,17 @@ class _PropertyCardState extends State<PropertyCard> {
                 controller: _controller,
                 itemCount: media.length,
                 onPageChanged: (index) {
-                  setState(() {
-                    currentIndex = index;
-                  });
+                  setState(() => currentIndex = index);
                 },
                 itemBuilder: (_, i) {
                   final item = media[i];
-                  final url = item["url"];
 
                   if (item["type"] == "image") {
-                    if (url == null || url.toString().isEmpty) {
-                      return const Icon(Icons.broken_image);
-                    }
-
                     return Image.network(
-                      url.toString(),
+                      item["url"].toString(),
                       fit: BoxFit.cover,
                       width: double.infinity,
-                      errorBuilder: (_, __, ___) =>
-                      const Icon(Icons.error),
                     );
-                  }
-
-                  if (url == null || url.toString().isEmpty) {
-                    return const Icon(Icons.videocam_off);
                   }
 
                   return const Center(
@@ -201,8 +207,7 @@ class _PropertyCardState extends State<PropertyCard> {
               children: List.generate(
                 media.length,
                     (index) => Container(
-                  margin:
-                  const EdgeInsets.symmetric(horizontal: 3, vertical: 6),
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
                   width: currentIndex == index ? 10 : 6,
                   height: currentIndex == index ? 10 : 6,
                   decoration: BoxDecoration(
@@ -222,27 +227,44 @@ class _PropertyCardState extends State<PropertyCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(widget.model.title ?? "",
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold)),
-                          Text(widget.model.location ?? ""),
-                          Text("${widget.model.price ?? ""} جنيه"),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                Text(widget.model.title ?? "",
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+
+                Text(widget.model.location ?? ""),
+                Text("${widget.model.price ?? ""} جنيه"),
+
+                const SizedBox(height: 5),
+
+                Text("Type: ${widget.model.type ?? ""}"),
+                Text("Status: ${widget.model.status ?? ""}"),
+
+                if (widget.model.rooms != null)
+                  Text("Rooms: ${widget.model.rooms}"),
+
+                if (widget.model.beds != null)
+                  Text("Beds: ${widget.model.beds}"),
+
+                /// 🔥 NEW (availability system – added only)
+                if (widget.model.totalRooms != null ||
+                    widget.model.availableRooms != null) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    "Available Rooms: ${widget.model.availableRooms ?? widget.model.rooms ?? 0}",
+                  ),
+                ],
+
+                if (widget.model.totalBeds != null ||
+                    widget.model.availableBeds != null)
+                  Text(
+                    "Available Beds: ${widget.model.availableBeds ?? widget.model.beds ?? 0}",
+                  ),
 
                 const SizedBox(height: 10),
 
+                /// ================= ACTIONS =================
                 Row(
                   children: [
+
                     IconButton(
                       icon: Icon(
                         widget.model.likes != null &&
@@ -289,13 +311,70 @@ class _PropertyCardState extends State<PropertyCard> {
                         );
                       },
                     ),
+
                     Text("${widget.model.commentsCount ?? 0}"),
+
+                    const SizedBox(width: 10),
+
+                    IconButton(
+                      icon: const Icon(
+                        Icons.chat_bubble_outline,
+                        color: Colors.green,
+                      ),
+                      onPressed: () async {
+                        final doc = await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(widget.model.ownerId)
+                            .get();
+
+                        final data =
+                        doc.data() as Map<String, dynamic>?;
+
+                        final otherUser = UserModel(
+                          id: widget.model.ownerId,
+                          username: data?['name'] ?? 'مالك العقار',
+                          image: data?['image'] ?? '',
+                        );
+
+                        final myUser = UserModel(
+                          id: uid,
+                          username: FirebaseAuth
+                              .instance.currentUser?.displayName,
+                        );
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatScreen(
+                              myUser: myUser,
+                              otherUser: otherUser,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _smallTag(String text) {
+    if (text.isEmpty) return const SizedBox();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 10),
       ),
     );
   }

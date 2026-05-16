@@ -1,6 +1,5 @@
 import 'package:aquarway/features/profile/views/profile_views.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class FollowingView extends StatelessWidget {
@@ -12,59 +11,69 @@ class FollowingView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Following")),
-      body: StreamBuilder(
+
+      body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
             .doc(uid)
             .collection('following')
             .snapshots(),
-        builder: (context, snapshot) {
 
-          if (!snapshot.hasData) {
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          var docs = snapshot.data!.docs;
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text("Not following anyone"));
+          }
+
+          final docs = snapshot.data!.docs;
 
           return ListView.builder(
             itemCount: docs.length,
             itemBuilder: (context, index) {
+              final followingId = docs[index].id;
 
-              var followerId = docs[index].id;
-
-              return FutureBuilder(
+              return FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance
                     .collection('users')
-                    .doc(followerId)
+                    .doc(followingId)
                     .get(),
-                builder: (context, userSnap) {
 
+                builder: (context, userSnap) {
                   if (!userSnap.hasData) {
-                    return const SizedBox();
+                    return const SizedBox(
+                      height: 60,
+                      child: Center(child: CircularProgressIndicator()),
+                    );
                   }
 
-                  var data = userSnap.data!.data();
+                  final data =
+                  userSnap.data!.data() as Map<String, dynamic>?;
+
+                  if (data == null) return const SizedBox();
+
+                  final image = data['image'] ?? "";
+                  final username = data['username'] ?? "User";
 
                   return ListTile(
                     leading: CircleAvatar(
-                      backgroundImage: (data?['image'] != null &&
-                          data!['image'] != "")
-                          ? NetworkImage(data['image'])
-                          : null,
-                      child: (data?['image'] == null ||
-                          data!['image'] == "")
+                      backgroundImage:
+                      image.isNotEmpty ? NetworkImage(image) : null,
+                      child: image.isEmpty
                           ? const Icon(Icons.person)
                           : null,
                     ),
 
-                    title: Text(data?['username'] ?? "User"),
+                    title: Text(username),
 
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => ProfileView(
-                            userId: followerId,
+                            uid: followingId, // ✔ FIXED
                           ),
                         ),
                       );

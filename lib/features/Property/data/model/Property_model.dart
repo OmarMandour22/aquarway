@@ -15,6 +15,13 @@ class PropertyModel {
   int? rooms;
   int? beds;
 
+  /// 🔥 NEW (availability system - added only)
+  int? totalRooms;
+  int? availableRooms;
+
+  int? totalBeds;
+  int? availableBeds;
+
   List<String>? images;
   List<String>? videos;
 
@@ -27,7 +34,7 @@ class PropertyModel {
 
   /// 🔥 search
   String? searchKey;
-  List<String>? searchKeywords; // ✅ الجديد
+  List<String>? searchKeywords;
 
   PropertyModel({
     this.id,
@@ -40,6 +47,13 @@ class PropertyModel {
     this.status,
     this.rooms,
     this.beds,
+
+    /// 🔥 NEW
+    this.totalRooms,
+    this.availableRooms,
+    this.totalBeds,
+    this.availableBeds,
+
     this.images,
     this.videos,
     this.likes,
@@ -48,7 +62,7 @@ class PropertyModel {
     this.commentsCount,
     this.createdAt,
     this.searchKey,
-    this.searchKeywords, // ✅ الجديد
+    this.searchKeywords,
   });
 
   factory PropertyModel.fromJson(Map<String, dynamic> json) {
@@ -63,17 +77,27 @@ class PropertyModel {
       status: json['status'],
       rooms: json['rooms'],
       beds: json['beds'],
+
+      /// 🔥 NEW (safe read)
+      totalRooms: json['totalRooms'],
+      availableRooms: json['availableRooms'],
+      totalBeds: json['totalBeds'],
+      availableBeds: json['availableBeds'],
+
       images: List<String>.from(json['images'] ?? []),
       videos: List<String>.from(json['videos'] ?? []),
+
       likes: json['likes'] ?? [],
       likesCount: json['likesCount'] ?? 0,
       favoritesCount: json['favoritesCount'] ?? 0,
       commentsCount: json['commentsCount'] ?? 0,
+
       createdAt: json['createdAt'] ?? Timestamp.now(),
 
       /// 🔥 search
       searchKey: json['searchKey'],
-      searchKeywords: List<String>.from(json['searchKeywords'] ?? []), // ✅
+      searchKeywords:
+      List<String>.from(json['searchKeywords'] ?? []),
     );
   }
 
@@ -89,17 +113,26 @@ class PropertyModel {
       'status': status,
       'rooms': rooms,
       'beds': beds,
+
+      /// 🔥 NEW (write to Firestore)
+      'totalRooms': totalRooms,
+      'availableRooms': availableRooms,
+      'totalBeds': totalBeds,
+      'availableBeds': availableBeds,
+
       'images': images ?? [],
       'videos': videos ?? [],
+
       'likes': likes ?? [],
       'likesCount': likesCount ?? 0,
       'favoritesCount': favoritesCount ?? 0,
       'commentsCount': commentsCount ?? 0,
+
       'createdAt': FieldValue.serverTimestamp(),
 
       /// 🔥 search
       'searchKey': searchKey,
-      'searchKeywords': searchKeywords ?? [], // ✅ مهم جداً
+      'searchKeywords': searchKeywords ?? [],
     };
   }
 }

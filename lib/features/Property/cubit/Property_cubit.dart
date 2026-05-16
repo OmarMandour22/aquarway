@@ -209,6 +209,48 @@ class PropertyCubit extends Cubit<PropertyState> {
     });
   }
 
+
+  Future<void> updateAvailableRooms(String id, int value) async {
+    await FirebaseFirestore.instance
+        .collection('properties')
+        .doc(id)
+        .update({
+      'availableRooms': value,
+    });
+  }
+
+  Future<void> updateAvailableBeds(String id, int value) async {
+    await FirebaseFirestore.instance
+        .collection('properties')
+        .doc(id)
+        .update({
+      'availableBeds': value,
+    });
+  }
+
+
+
+  /// =========================
+  /// UPDATE ROOMS / BEDS
+  /// =========================
+  Future<void> updateRoomsBeds(
+      PropertyModel model,
+      ) async {
+    try {
+      await repo.updateRoomsBeds(
+        propertyId: model.id!,
+        rooms: model.rooms,
+        beds: model.beds,
+      );
+
+      emit(PropertySuccess());
+    } catch (e) {
+      emit(PropertyError(e.toString()));
+    }
+  }
+
+
+
   /// =========================
   /// SIMPLE SEARCH
   /// =========================

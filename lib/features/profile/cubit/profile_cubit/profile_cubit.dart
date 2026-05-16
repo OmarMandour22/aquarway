@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../auth/data/model/user_model.dart';
 import '../../../auth/data/repo/auth_repo.dart';
 import 'profile_state.dart';
@@ -10,15 +12,17 @@ class ProfileCubit extends Cubit<ProfileState> {
   UserModel? userModel;
   bool isFollowing = false;
 
-  /// 🔥 نتائج البحث عن المستخدمين
   List<UserModel> searchResults = [];
 
   static ProfileCubit get(context) => BlocProvider.of(context);
 
+  /// ================= CURRENT USER (زي ما هو) =================
   Future<void> getUserData() async {
     emit(ProfileLoading());
     AuthRepo repo = AuthRepo();
+
     var response = await repo.getCurrentUserData();
+
     response.fold(
           (error) => emit(ProfileError(error)),
           (user) {
@@ -28,14 +32,36 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  /// 🔄 Refresh
+  /// ================= 🔥 USER BY ID (اللي كان ناقص عندك) =================
+  Future<void> getUserById(String uid) async {
+    emit(ProfileLoading());
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
+
+      if (!doc.exists) {
+        emit(ProfileError("User not found"));
+        return;
+      }
+
+      userModel = UserModel.fromJson(doc.data()!);
+      emit(ProfileLoaded());
+    } catch (e) {
+      emit(ProfileError(e.toString()));
+    }
+  }
+
+  /// ================= REFRESH =================
   Future<void> refreshProfile() async {
     if (userModel != null) {
       await getUserData();
     }
   }
 
-  /// ✏️ Update Profile
+  /// ================= UPDATE PROFILE =================
   Future<void> updateProfile({
     String? username,
     String? phone,
@@ -43,13 +69,16 @@ class ProfileCubit extends Cubit<ProfileState> {
     String? address,
   }) async {
     emit(ProfileLoading());
+
     AuthRepo repo = AuthRepo();
+
     var response = await repo.updateUserProfile(
       username: username,
       phone: phone,
       bio: bio,
       address: address,
     );
+
     response.fold(
           (error) => emit(ProfileError(error)),
           (user) {
@@ -59,10 +88,12 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  /// 🖼️ Update Image
+  /// ================= IMAGE =================
   Future<void> updateProfileImage(File image) async {
     emit(ProfileLoading());
+
     var response = await AuthRepo().updateProfileImage(image);
+
     response.fold(
           (error) => emit(ProfileError(error)),
           (imageUrl) {
@@ -74,36 +105,26 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  /// ❤️ Follow
+  /// ================= FOLLOW =================
   Future<void> followUser(String uid) async {
     await AuthRepo().followUser(uid);
     isFollowing = true;
-    getUserData();
+    emit(ProfileLoaded());
   }
 
-  /// 💔 Unfollow
   Future<void> unfollow(String uid) async {
     await AuthRepo().unfollowUser(uid);
     isFollowing = false;
     emit(ProfileLoaded());
   }
 
-  /// 👀 Check Follow
   Future<void> checkIfFollowing(String uid) async {
     bool result = await AuthRepo().checkIfFollowing(uid);
     isFollowing = result;
     emit(ProfileLoaded());
   }
 
-  /// 🚪 Logout
-  Future<void> logout() async {
-    await AuthRepo().logout();
-  }
-
-  // ===========================
-  // 🔥🔥🔥 NEW: SEARCH USERS
-  // ===========================
-
+  /// ================= SEARCH =================
   Future<void> searchByUsername(String text) async {
     if (text.isEmpty) {
       searchResults = [];
@@ -114,15 +135,17 @@ class ProfileCubit extends Cubit<ProfileState> {
     emit(ProfileLoading());
 
     try {
-      final repo = AuthRepo();
-
-      final result = await repo.searchUsers(text);
-
+      final result = await AuthRepo().searchUsers(text);
       searchResults = result;
 
       emit(ProfileLoaded());
     } catch (e) {
       emit(ProfileError(e.toString()));
     }
+  }
+
+  /// ================= LOGOUT =================
+  Future<void> logout() async {
+    await AuthRepo().logout();
   }
 }

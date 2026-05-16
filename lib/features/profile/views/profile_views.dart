@@ -1,8 +1,8 @@
-import 'dart:io';
 import 'package:aquarway/core/utils/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../Property/cubit/Property_cubit.dart';
 import '../../Property/data/model/Property_model.dart';
@@ -16,23 +16,24 @@ import 'following_view.dart';
 import '../../../core/widgets/property_card.dart';
 
 class ProfileView extends StatelessWidget {
-  final String? userId;
+  final String? uid;
 
-  const ProfileView({super.key, this.userId});
+  const ProfileView({super.key, this.uid});
 
   @override
   Widget build(BuildContext context) {
-    final uid = userId ?? FirebaseAuth.instance.currentUser!.uid;
+    final currentUid = uid ?? FirebaseAuth.instance.currentUser!.uid;
 
     return MultiBlocProvider(
       providers: [
         BlocProvider(
           create: (_) => ProfileCubit()
-            ..getUserData()
-            ..checkIfFollowing(uid),
+            ..getUserById(currentUid)
+            ..checkIfFollowing(currentUid),
         ),
         BlocProvider(
-          create: (_) => PropertyCubit(PropertyRepo())..getMyProperties(uid),
+          create: (_) =>
+          PropertyCubit(PropertyRepo())..getMyProperties(currentUid),
         ),
       ],
       child: BlocConsumer<ProfileCubit, ProfileState>(
@@ -40,8 +41,9 @@ class ProfileView extends StatelessWidget {
         builder: (context, state) {
           var cubit = ProfileCubit.get(context);
           var user = cubit.userModel;
+
           bool isMyProfile =
-              FirebaseAuth.instance.currentUser?.uid == uid;
+              FirebaseAuth.instance.currentUser?.uid == currentUid;
 
           if (user == null) {
             return const Scaffold(
@@ -58,7 +60,8 @@ class ProfileView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// الجزء العلوي
+
+                  /// ================= HEADER =================
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -72,85 +75,82 @@ class ProfileView extends StatelessWidget {
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold),
                             ),
+
                             const SizedBox(height: 15),
 
-                            /// Posts Followers Following
-                            Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Column(
+                            /// POSTS / FOLLOWERS / FOLLOWING
+                            StreamBuilder<DocumentSnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(currentUid)
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                final data = snapshot.data?.data()
+                                as Map<String, dynamic>?;
+
+                                final posts = data?['postsCount'] ?? 0;
+
+                                return Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    Text(
-                                      "${user.postsCount ?? 0}",
-                                      style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
+                                    Column(
+                                      children: [
+                                        Text("$posts"),
+                                        const Text("Posts"),
+                                      ],
                                     ),
-                                    const Text("Posts"),
+
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                FollowersView(uid: currentUid),
+                                          ),
+                                        );
+                                      },
+                                      child: Column(
+                                        children: [
+                                          Text("${user.followersCount ?? 0}"),
+                                          const Text("Followers"),
+                                        ],
+                                      ),
+                                    ),
+
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                FollowingView(uid: currentUid),
+                                          ),
+                                        );
+                                      },
+                                      child: Column(
+                                        children: [
+                                          Text("${user.followingCount ?? 0}"),
+                                          const Text("Following"),
+                                        ],
+                                      ),
+                                    ),
                                   ],
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            FollowersView(uid: user.id!),
-                                      ),
-                                    );
-                                  },
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "${user.followersCount ?? 0}",
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      const Text("Followers"),
-                                    ],
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            FollowingView(uid: user.id!),
-                                      ),
-                                    );
-                                  },
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "${user.followingCount ?? 0}",
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      const Text("Following"),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                                );
+                              },
                             ),
 
                             const SizedBox(height: 10),
 
                             Text(
                               user.email ?? "",
-                              style: const TextStyle(
-                                  fontSize: 16, color: Colors.grey),
+                              style: const TextStyle(color: Colors.grey),
                             ),
 
                             const SizedBox(height: 10),
 
-                            Text(
-                              user.phone ?? "Phone not added",
-                              style: const TextStyle(fontSize: 16),
-                            ),
+                            Text(user.phone ?? "Phone not added"),
                           ],
                         ),
                       ),
@@ -171,31 +171,29 @@ class ProfileView extends StatelessWidget {
 
                   const SizedBox(height: 30),
 
-                  /// Bio
+                  /// ================= BIO =================
                   Card(
                     child: ListTile(
                       leading: const Icon(Icons.info_outline),
                       title: const Text("Description"),
-                      subtitle:
-                      Text(user.bio ?? "Description not added"),
+                      subtitle: Text(user.bio ?? "No description"),
                     ),
                   ),
 
                   const SizedBox(height: 10),
 
-                  /// Address
+                  /// ================= ADDRESS =================
                   Card(
                     child: ListTile(
                       leading: const Icon(Icons.location_on_outlined),
                       title: const Text("Address"),
-                      subtitle:
-                      Text(user.address ?? "Address not added"),
+                      subtitle: Text(user.address ?? "No address"),
                     ),
                   ),
 
                   const SizedBox(height: 20),
 
-                  /// زرار Edit / Follow
+                  /// ================= BUTTON =================
                   Align(
                     alignment: Alignment.centerRight,
                     child: SizedBox(
@@ -204,37 +202,26 @@ class ProfileView extends StatelessWidget {
                       child: isMyProfile
                           ? ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                          AppColors.grenblak,
+                          backgroundColor: AppColors.grenblak,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.zero,
                         ),
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  BlocProvider.value(
-                                    value: cubit,
-                                    child:
-                                    const EditProfileView(),
-                                  ),
+                              builder: (_) => BlocProvider.value(
+                                value: cubit,
+                                child: const EditProfileView(),
+                              ),
                             ),
                           );
                         },
-                        child: const Text(
-                          "Edit Profile",
-                          style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.white),
-                        ),
+                        child: const Text("Edit Profile"),
                       )
                           : ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                          AppColors.grenblak,
+                          backgroundColor: AppColors.grenblak,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.zero,
                         ),
                         onPressed: () {
                           if (cubit.isFollowing) {
@@ -244,12 +231,7 @@ class ProfileView extends StatelessWidget {
                           }
                         },
                         child: Text(
-                          cubit.isFollowing
-                              ? "Unfollow"
-                              : "Follow",
-                          style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.white),
+                          cubit.isFollowing ? "Unfollow" : "Follow",
                         ),
                       ),
                     ),
@@ -257,7 +239,7 @@ class ProfileView extends StatelessWidget {
 
                   const SizedBox(height: 15),
 
-                  /// زرار Add Property
+                  /// ================= ADD PROPERTY =================
                   Align(
                     alignment: Alignment.centerRight,
                     child: SizedBox(
@@ -265,39 +247,29 @@ class ProfileView extends StatelessWidget {
                       height: 40,
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                          AppColors.grenblak,
+                          backgroundColor: AppColors.grenblak,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.zero,
                         ),
-                        onPressed: () async {
-                          await Navigator.push(
+                        onPressed: () {
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  BlocProvider.value(
-                                    value: propertyCubit,
-                                    child: AddPropertyView(),
-                                  ),
+                              builder: (_) => BlocProvider.value(
+                                value: propertyCubit,
+                                child: AddPropertyView(),
+                              ),
                             ),
                           );
                         },
-                        icon: const Icon(Icons.add,
-                            size: 18,
-                            color: Colors.white),
-                        label: const Text(
-                          "Add Property",
-                          style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.white),
-                        ),
+                        icon: const Icon(Icons.add, color: Colors.white),
+                        label: const Text("Add Property"),
                       ),
                     ),
                   ),
 
                   const SizedBox(height: 30),
 
-                  /// My Properties
+                  /// ================= PROPERTIES =================
                   Text(
                     "My Properties",
                     style: TextStyle(
@@ -310,8 +282,7 @@ class ProfileView extends StatelessWidget {
                   const SizedBox(height: 10),
 
                   StreamBuilder<List<PropertyModel>>(
-                    stream:
-                    propertyCubit.myPropertiesStream(uid),
+                    stream: propertyCubit.myPropertiesStream(currentUid),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return const Center(
@@ -325,8 +296,7 @@ class ProfileView extends StatelessWidget {
 
                       return ListView.builder(
                         shrinkWrap: true,
-                        physics:
-                        const NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: list.length,
                         itemBuilder: (_, i) =>
                             PropertyCard(model: list[i]),

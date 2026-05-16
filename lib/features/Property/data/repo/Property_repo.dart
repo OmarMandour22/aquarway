@@ -239,6 +239,21 @@ class PropertyRepo {
     });
   }
 
+
+  /// =========================
+  /// UPDATE ROOMS / BEDS
+  /// =========================
+  Future<void> updateRoomsBeds({
+    required String propertyId,
+    int? rooms,
+    int? beds,
+  }) async {
+    await _firestore.collection('properties').doc(propertyId).update({
+      'rooms': rooms,
+      'beds': beds,
+    });
+  }
+
   /// =========================
   /// FAVORITE TOGGLE
   /// =========================

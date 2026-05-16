@@ -110,7 +110,9 @@ class _AppDrawerState extends State<AppDrawer> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const ProfileView(),
+                    builder: (_) => ProfileView(
+                      uid: FirebaseAuth.instance.currentUser!.uid,
+                    ),
                   ),
                 );
               },

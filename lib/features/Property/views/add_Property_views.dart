@@ -18,7 +18,9 @@ class AddPropertyView extends StatelessWidget {
   final locationController = TextEditingController();
   final priceController = TextEditingController();
 
-  /// 🔥 NEW TYPES
+  final availableRoomsController = TextEditingController();
+  final availableBedsController = TextEditingController();
+
   final List<Map<String, String>> types = [
     {"label": "شقق", "value": "apartment"},
     {"label": "فنادق", "value": "hotel"},
@@ -33,7 +35,6 @@ class AddPropertyView extends StatelessWidget {
 
   final ImagePicker _picker = ImagePicker();
 
-  /// 🔥 FIX (mapping old → new)
   String normalizeType(String? value) {
     switch (value) {
       case "فيلات":
@@ -57,18 +58,29 @@ class AddPropertyView extends StatelessWidget {
 
   Future<void> _pickImages(BuildContext context) async {
     final cubit = context.read<PropertyCubit>();
-    final List<XFile>? pickedFiles = await _picker.pickMultiImage();
+
+    final List<XFile>? pickedFiles =
+    await _picker.pickMultiImage();
+
     if (pickedFiles != null && pickedFiles.isNotEmpty) {
-      cubit.pickImages(pickedFiles.map((x) => File(x.path)).toList());
+      cubit.pickImages(
+        pickedFiles.map((x) => File(x.path)).toList(),
+      );
     }
   }
 
   Future<void> _pickVideo(BuildContext context) async {
     final cubit = context.read<PropertyCubit>();
+
     final XFile? pickedFile =
-    await _picker.pickVideo(source: ImageSource.gallery);
+    await _picker.pickVideo(
+      source: ImageSource.gallery,
+    );
+
     if (pickedFile != null) {
-      cubit.pickVideo([File(pickedFile.path)]);
+      cubit.pickVideo([
+        File(pickedFile.path)
+      ]);
     }
   }
 
@@ -76,137 +88,324 @@ class AddPropertyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.watch<PropertyCubit>();
 
-    /// 🔥 FIXED LOAD
-    if (existingModel != null && titleController.text.isEmpty) {
-      titleController.text = existingModel!.title ?? "";
-      descController.text = existingModel!.description ?? "";
-      locationController.text = existingModel!.location ?? "";
-      priceController.text = existingModel!.price ?? "";
+    if (existingModel != null &&
+        titleController.text.isEmpty) {
+      titleController.text =
+          existingModel!.title ?? "";
 
-      cubit.selectedType ??= normalizeType(existingModel!.type);
-      cubit.selectedStatus ??= existingModel!.status;
-      cubit.rooms ??= existingModel!.rooms;
-      cubit.beds ??= existingModel!.beds;
+      descController.text =
+          existingModel!.description ?? "";
+
+      locationController.text =
+          existingModel!.location ?? "";
+
+      priceController.text =
+          existingModel!.price ?? "";
+
+      availableRoomsController.text =
+          (existingModel!.availableRooms ?? "")
+              .toString();
+
+      availableBedsController.text =
+          (existingModel!.availableBeds ?? "")
+              .toString();
+
+      cubit.selectedType ??=
+          normalizeType(
+              existingModel!.type);
+
+      cubit.selectedStatus ??=
+          existingModel!.status;
+
+      cubit.rooms ??=
+          existingModel!.rooms;
+
+      cubit.beds ??=
+          existingModel!.beds;
 
       cubit.images = [];
       cubit.videos = [];
     }
 
-    return BlocConsumer<PropertyCubit, PropertyState>(
+    return BlocConsumer<
+        PropertyCubit,
+        PropertyState>(
       listener: (context, state) {
         if (state is PropertySuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("تم النشر ✅")),
+          ScaffoldMessenger.of(context)
+              .showSnackBar(
+            const SnackBar(
+              content:
+              Text("تم النشر ✅"),
+            ),
           );
-          cubit.getMyProperties(FirebaseAuth.instance.currentUser!.uid);
+
+          cubit.getMyProperties(
+              FirebaseAuth.instance
+                  .currentUser!
+                  .uid);
+
           Navigator.pop(context);
-        } else if (state is PropertyError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error: ${state.error}")),
+        }
+
+        if (state is PropertyError) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(
+            SnackBar(
+              content: Text(
+                  state.error),
+            ),
           );
         }
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Colors.grey[100],
+          backgroundColor:
+          Colors.grey[100],
+
           appBar: AppBar(
-            title: Text(existingModel != null ? "تعديل العقار" : "Add Property"),
+            title: Text(
+              existingModel != null
+                  ? "تعديل العقار"
+                  : "Add Property",
+            ),
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+
+          body:
+          SingleChildScrollView(
+            padding:
+            const EdgeInsets.all(
+                16),
+
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+              CrossAxisAlignment
+                  .start,
+
               children: [
 
-                /// 🔥 IMAGES + VIDEOS
+                /// MEDIA
                 SizedBox(
                   height: 140,
+
                   child: ListView(
-                    scrollDirection: Axis.horizontal,
+                    scrollDirection:
+                    Axis.horizontal,
+
                     children: [
 
                       GestureDetector(
-                        onTap: () => _pickImages(context),
-                        child: _addBox(Icons.image, "صور"),
+                        onTap: ()=>_pickImages(context),
+
+                        child: _addBox(
+                            Icons.image,
+                            "صور"),
                       ),
 
-                      const SizedBox(width: 10),
+                      const SizedBox(
+                          width: 10),
 
                       GestureDetector(
-                        onTap: () => _pickVideo(context),
-                        child: _addBox(Icons.video_call, "فيديو"),
+                        onTap: ()=>_pickVideo(context),
+
+                        child: _addBox(
+                            Icons.video_call,
+                            "فيديو"),
                       ),
 
-                      const SizedBox(width: 10),
+                      const SizedBox(
+                          width: 10),
 
                       /// OLD IMAGES
-                      if (existingModel?.images != null)
-                        ...existingModel!.images!.map((url) {
+                      if(existingModel?.images!=null)
+
+                        ...existingModel!
+                            .images!
+                            .map((url){
+
                           return Padding(
-                            padding: const EdgeInsets.only(right: 10),
+                            padding:
+                            const EdgeInsets.only(
+                                right:10),
+
                             child: Stack(
                               children: [
+
                                 ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: Image.network(
+                                  borderRadius:
+                                  BorderRadius.circular(15),
+
+                                  child:
+                                  Image.network(
                                     url,
-                                    width: 100,
-                                    height: 100,
-                                    fit: BoxFit.cover,
+
+                                    width:100,
+                                    height:100,
+
+                                    fit:
+                                    BoxFit.cover,
                                   ),
                                 ),
+
                                 Positioned(
-                                  top: -5,
-                                  right: -5,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.close,
-                                        color: Colors.red),
-                                    onPressed: () {
-                                      existingModel!.images!.remove(url);
-                                      (context as Element).markNeedsBuild();
+                                  top:-5,
+                                  right:-5,
+
+                                  child:
+                                  IconButton(
+
+                                    icon:
+                                    const Icon(
+                                      Icons.close,
+                                      color:
+                                      Colors.red,
+                                    ),
+
+                                    onPressed:(){
+
+                                      existingModel!
+                                          .images!
+                                          .remove(url);
+
+                                      (context
+                                      as Element)
+                                          .markNeedsBuild();
                                     },
                                   ),
-                                ),
+                                )
                               ],
                             ),
                           );
                         }),
 
                       /// NEW IMAGES
-                      ...cubit.images.map((img) {
+                      ...cubit.images
+                          .map((img){
+
                         return Padding(
-                          padding: const EdgeInsets.only(right: 10),
+                          padding:
+                          const EdgeInsets.only(
+                              right:10),
+
                           child: Stack(
                             children: [
+
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: Image.file(
+                                borderRadius:
+                                BorderRadius.circular(
+                                    15),
+
+                                child:
+                                Image.file(
                                   img,
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
+
+                                  width:100,
+                                  height:100,
+
+                                  fit:
+                                  BoxFit.cover,
                                 ),
                               ),
+
                               Positioned(
-                                top: -5,
-                                right: -5,
-                                child: IconButton(
-                                  icon: const Icon(Icons.close,
-                                      color: Colors.red),
-                                  onPressed: () {
-                                    cubit.removeImage(img);
+                                top:-5,
+                                right:-5,
+
+                                child:
+                                IconButton(
+                                  icon:
+                                  const Icon(
+                                    Icons.close,
+                                    color:
+                                    Colors.red,
+                                  ),
+
+                                  onPressed:(){
+
+                                    cubit.removeImage(
+                                        img);
+
                                   },
                                 ),
-                              ),
+                              )
+
                             ],
                           ),
                         );
                       }),
+
+                      /// OLD VIDEOS
+                      if(existingModel?.videos!=null)
+
+                        ...existingModel!
+                            .videos!
+                            .map((url){
+
+                          return Padding(
+                            padding:
+                            const EdgeInsets.only(
+                                right:10),
+
+                            child: Stack(
+                              children: [
+
+                                Container(
+                                  width:100,
+                                  height:100,
+
+                                  decoration:
+                                  BoxDecoration(
+                                    color:
+                                    Colors.black12,
+
+                                    borderRadius:
+                                    BorderRadius.circular(
+                                        15),
+                                  ),
+
+                                  child:
+                                  const Icon(
+                                    Icons.play_circle_fill,
+                                    size:50,
+                                  ),
+                                ),
+
+                                Positioned(
+                                  top:-5,
+                                  right:-5,
+
+                                  child:
+                                  IconButton(
+
+                                    icon:
+                                    const Icon(
+                                      Icons.close,
+                                      color:
+                                      Colors.red,
+                                    ),
+
+                                    onPressed:(){
+
+                                      existingModel!
+                                          .videos!
+                                          .remove(url);
+
+                                      (context
+                                      as Element)
+                                          .markNeedsBuild();
+                                    },
+                                  ),
+                                )
+                              ],
+                            ),
+                          );
+                        })
+
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height:20),
 
                 _dropdownField(
                   "الحالة",
@@ -215,7 +414,7 @@ class AddPropertyView extends StatelessWidget {
                   cubit.changeStatus,
                 ),
 
-                const SizedBox(height: 15),
+                const SizedBox(height:15),
 
                 _dropdownFieldType(
                   "نوع العقار",
@@ -224,57 +423,151 @@ class AddPropertyView extends StatelessWidget {
                   cubit.changeType,
                 ),
 
-                const SizedBox(height: 15),
+                const SizedBox(height:15),
 
-                if (cubit.selectedType == "expat") ...[
+                if(cubit.selectedType=="expat")...[
+
                   Row(
-                    children: [
+                    children:[
+
                       Expanded(
-                        child: _field(
-                          "Rooms",
-                          isNumber: true,
-                          onChanged: (v) => cubit.rooms = int.tryParse(v),
+                        child:_field(
+                          "Total Rooms",
+                          isNumber:true,
+                          onChanged:(v){
+                            cubit.rooms=
+                                int.tryParse(v);
+                          },
                         ),
                       ),
-                      const SizedBox(width: 10),
+
+                      const SizedBox(width:10),
+
                       Expanded(
-                        child: _field(
-                          "Beds",
-                          isNumber: true,
-                          onChanged: (v) => cubit.beds = int.tryParse(v),
+                        child:_field(
+                          "Total Beds",
+                          isNumber:true,
+                          onChanged:(v){
+                            cubit.beds=
+                                int.tryParse(v);
+                          },
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 15),
+
+                  const SizedBox(height:15),
+
+                  Row(
+                    children:[
+
+                      Expanded(
+                        child:_field(
+                          "Available Rooms",
+                          controller:
+                          availableRoomsController,
+                          isNumber:true,
+                        ),
+                      ),
+
+                      const SizedBox(width:10),
+
+                      Expanded(
+                        child:_field(
+                          "Available Beds",
+                          controller:
+                          availableBedsController,
+                          isNumber:true,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
 
-                _field("Title", controller: titleController),
-                _field("Description", controller: descController, maxLines: 3),
-                _field("Location", controller: locationController),
-                _field("Price", controller: priceController),
+                _field(
+                  "Title",
+                  controller:
+                  titleController,
+                ),
 
-                const SizedBox(height: 30),
+                _field(
+                  "Description",
+                  controller:
+                  descController,
+                  maxLines:3,
+                ),
+
+                _field(
+                  "Location",
+                  controller:
+                  locationController,
+                ),
+
+                _field(
+                  "Price",
+                  controller:
+                  priceController,
+                ),
+
+                const SizedBox(height:30),
 
                 SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: state is PropertyLoading
-                        ? null
-                        : () {
+                  width:
+                  double.infinity,
+
+                  child:
+                  ElevatedButton(
+
+                    onPressed:
+                    state
+                    is PropertyLoading
+                        ?null
+                        :(){
+
+                      existingModel
+                          ?.availableRooms=
+                          int.tryParse(
+                              availableRoomsController.text);
+
+                      existingModel
+                          ?.availableBeds=
+                          int.tryParse(
+                              availableBedsController.text);
+
                       cubit.addOrUpdateProperty(
-                        title: titleController.text,
-                        description: descController.text,
-                        location: locationController.text,
-                        price: priceController.text,
-                        existingModel: existingModel,
+                        title:
+                        titleController.text,
+
+                        description:
+                        descController.text,
+
+                        location:
+                        locationController.text,
+
+                        price:
+                        priceController.text,
+
+                        existingModel:
+                        existingModel,
                       );
                     },
-                    child: state is PropertyLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : Text(existingModel != null ? "تعديل" : "Publish"),
+
+                    child:
+                    state
+                    is PropertyLoading
+
+                        ?const CircularProgressIndicator(
+                      color:
+                      Colors.white,
+                    )
+
+                        :Text(
+                      existingModel!=null
+                          ?"تعديل"
+                          :"Publish",
+                    ),
                   ),
-                ),
+                )
               ],
             ),
           ),
@@ -283,44 +576,94 @@ class AddPropertyView extends StatelessWidget {
     );
   }
 
-  Widget _addBox(IconData icon, String text) {
+  Widget _addBox(
+      IconData icon,
+      String text){
+
     return Container(
-      width: 70,
-      height: 70,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey.shade300),
+      width:70,
+      height:70,
+
+      decoration:
+      BoxDecoration(
+        color:Colors.white,
+
+        borderRadius:
+        BorderRadius.circular(
+            15),
+
+        border:Border.all(
+          color:
+          Colors.grey.shade300,
+        ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+
+      child:Column(
+        mainAxisAlignment:
+        MainAxisAlignment.center,
+
+        children:[
           Icon(icon),
-          Text(text, style: const TextStyle(fontSize: 10)),
+
+          Text(
+            text,
+            style:
+            const TextStyle(
+                fontSize:10),
+          ),
         ],
       ),
     );
   }
 
-  Widget _field(String hint,
-      {TextEditingController? controller,
-        int maxLines = 1,
-        bool isNumber = false,
-        Function(String)? onChanged}) {
+  Widget _field(
+      String hint,{
+        TextEditingController?
+        controller,
+        int maxLines=1,
+        bool isNumber=false,
+        Function(String)?
+        onChanged
+      }){
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextField(
-        controller: controller,
-        maxLines: maxLines,
-        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          hintText: hint,
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide.none,
+      padding:
+      const EdgeInsets.only(
+          bottom:12),
+
+      child:TextField(
+        controller:
+        controller,
+
+        maxLines:
+        maxLines,
+
+        keyboardType:
+        isNumber
+            ?TextInputType.number
+            :TextInputType.text,
+
+        onChanged:
+        onChanged,
+
+        decoration:
+        InputDecoration(
+          hintText:
+          hint,
+
+          filled:true,
+
+          fillColor:
+          Colors.white,
+
+          border:
+          OutlineInputBorder(
+            borderRadius:
+            BorderRadius.circular(
+                15),
+
+            borderSide:
+            BorderSide.none,
           ),
         ),
       ),
@@ -331,51 +674,111 @@ class AddPropertyView extends StatelessWidget {
       String hint,
       List<String> items,
       String? value,
-      Function(String) onChanged) {
+      Function(String)
+      onChanged){
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+      padding:
+      const EdgeInsets.symmetric(
+          horizontal:12),
+
+      decoration:
+      BoxDecoration(
+        color:
+        Colors.white,
+
+        borderRadius:
+        BorderRadius.circular(
+            15),
       ),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        hint: Text(hint),
-        items: items
-            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-            .toList(),
-        onChanged: (val) {
-          if (val != null) onChanged(val);
+
+      child:
+      DropdownButtonFormField<
+          String>(
+
+        value:value,
+
+        hint:Text(hint),
+
+        items:items.map((e){
+
+          return DropdownMenuItem(
+            value:e,
+            child:Text(e),
+          );
+
+        }).toList(),
+
+        onChanged:(val){
+          if(val!=null){
+            onChanged(val);
+          }
         },
-        decoration: const InputDecoration(border: InputBorder.none),
+
+        decoration:
+        const InputDecoration(
+          border:
+          InputBorder.none,
+        ),
       ),
     );
   }
 
   Widget _dropdownFieldType(
       String hint,
-      List<Map<String, String>> items,
+      List<Map<String,String>>
+      items,
       String? value,
-      Function(String) onChanged) {
+      Function(String)
+      onChanged){
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+      padding:
+      const EdgeInsets.symmetric(
+          horizontal:12),
+
+      decoration:
+      BoxDecoration(
+        color:
+        Colors.white,
+
+        borderRadius:
+        BorderRadius.circular(
+            15),
       ),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        hint: Text(hint),
-        items: items.map((e) {
+
+      child:
+      DropdownButtonFormField<
+          String>(
+
+        value:value,
+
+        hint:Text(hint),
+
+        items:items.map((e){
+
           return DropdownMenuItem(
-            value: e["value"],
-            child: Text(e["label"]!),
+            value:e["value"],
+
+            child:Text(
+                e["label"]!),
           );
+
         }).toList(),
-        onChanged: (val) {
-          if (val != null) onChanged(val);
+
+        onChanged:(val){
+
+          if(val!=null){
+            onChanged(val);
+          }
+
         },
-        decoration: const InputDecoration(border: InputBorder.none),
+
+        decoration:
+        const InputDecoration(
+          border:
+          InputBorder.none,
+        ),
       ),
     );
   }
