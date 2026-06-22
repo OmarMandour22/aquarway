@@ -1,12 +1,15 @@
 import 'package:aquarway/core/utils/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../main.dart';
 import '../../about_views/about_views/about_views.dart';
 import '../../auth/data/model/user_model.dart';
 import '../../auth/data/repo/auth_repo.dart';
 import '../../auth/views/login_views.dart';
 import '../../change_password/views/change_password_views.dart';
+import '../../language/cubit/language_cubit.dart';
+import '../../language/views/app_language.dart';
 import '../../location/views/location-views.dart';
 import '../../profile/views/profile_views.dart';
 import 'favorites_view.dart';
@@ -78,7 +81,11 @@ class _AppDrawerState extends State<AppDrawer> {
             ListTile(
               leading: const Icon(Icons.location_on, color: Colors.red),
               title: Text(
-                _address ?? "No Location",
+                _address ??
+                    AppLanguage.translations[
+                    context.watch<LanguageCubit>().state.languageCode
+                    ]?["no_location"] ??
+                    "No Location",
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -105,7 +112,12 @@ class _AppDrawerState extends State<AppDrawer> {
             /// PROFILE
             ListTile(
               leading: const Icon(Icons.person),
-              title: const Text("Profile"),
+              title: Text(
+                AppLanguage.translations[
+                context.watch<LanguageCubit>().state.languageCode
+                ]?["profile"] ??
+                    "Profile",
+              ),
               onTap: () {
                 Navigator.push(
                   context,
@@ -120,14 +132,26 @@ class _AppDrawerState extends State<AppDrawer> {
 
             ListTile(
               leading: const Icon(Icons.language),
-              title: const Text("Language"),
-              onTap: () {},
+              title: Text(
+                "${AppLanguage.translations[
+                context.watch<LanguageCubit>().state.languageCode
+                ]?["language"] ?? "Language"} : "
+                    "${context.watch<LanguageCubit>().state.languageCode == "ar" ? "العربية" : "English"}",
+              ),
+              onTap: () {
+                context.read<LanguageCubit>().changeLanguage();
+              },
             ),
 
 
             ListTile(
               leading: const Icon(Icons.star),
-              title: const Text("Favorites"),
+              title: Text(
+                AppLanguage.translations[
+                context.watch<LanguageCubit>().state.languageCode
+                ]?["favorites"] ??
+                    "Favorites",
+              ),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -142,7 +166,12 @@ class _AppDrawerState extends State<AppDrawer> {
 
             ListTile(
               leading: const Icon(Icons.dark_mode),
-              title: const Text("Dark Mode"),
+                title: Text(
+                  AppLanguage.translations[
+                  context.watch<LanguageCubit>().state.languageCode
+                  ]?["dark_mode"] ??
+                      "Dark Mode",
+                ),
                 onTap: () async {
                   bool isDark = themeNotifier.value == ThemeMode.dark;
 
@@ -156,7 +185,12 @@ class _AppDrawerState extends State<AppDrawer> {
 
             ListTile(
               leading: const Icon(Icons.lock),
-              title: const Text("Change Password"),
+              title: Text(
+                AppLanguage.translations[
+                context.watch<LanguageCubit>().state.languageCode
+                ]?["change_password"] ??
+                    "Change Password",
+              ),
               onTap: () {
                 Navigator.push(
                   context,
@@ -167,7 +201,12 @@ class _AppDrawerState extends State<AppDrawer> {
 
             ListTile(
               leading: const Icon(Icons.description),
-              title: const Text(" About us "),
+              title: Text(
+                AppLanguage.translations[
+                context.watch<LanguageCubit>().state.languageCode
+                ]?["about_us"] ??
+                    "About us",
+              ),
               onTap: () {
                 Navigator.push(
                   context,
@@ -180,7 +219,12 @@ class _AppDrawerState extends State<AppDrawer> {
 
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text("Log out"),
+                title: Text(
+                  AppLanguage.translations[
+                  context.watch<LanguageCubit>().state.languageCode
+                  ]?["logout"] ??
+                      "Log out",
+                ),
                 onTap: () async {
                   await FirebaseAuth.instance.signOut();
 
@@ -193,7 +237,12 @@ class _AppDrawerState extends State<AppDrawer> {
 
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text("Delete Account"),
+                title: Text(
+                  AppLanguage.translations[
+                  context.watch<LanguageCubit>().state.languageCode
+                  ]?["delete_account"] ??
+                      "Delete Account",
+                ),
                 onTap: () async {
                   var error = await AuthRepo().deleteAccount();
 

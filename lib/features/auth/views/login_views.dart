@@ -12,6 +12,7 @@ import '../../home/views/home_views.dart';
 import '../cubit/login_cubit/login_cubit.dart';
 import '../cubit/login_cubit/login_state.dart';
 import 'Register_views.dart';
+import 'forgot_password_view.dart';
 
 class LoginViews extends StatefulWidget {
   const LoginViews({super.key});
@@ -118,6 +119,25 @@ class _LoginViewsState extends State<LoginViews> {
                               ),
                             ],
                           ),
+
+
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ForgotPasswordView(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "Forgot Password?",
+                              ),
+                            ),
+                          ),
+
                         ],
                       ),
                     ),

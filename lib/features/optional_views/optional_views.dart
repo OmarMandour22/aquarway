@@ -4,6 +4,10 @@ import 'package:aquarway/core/widgets/Custm_btn.dart';
 import 'package:aquarway/features/auth/views/login_views.dart';
 import 'package:aquarway/features/auth/views/register_views.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../language/cubit/language_cubit.dart';
+import '../language/views/app_language.dart';
 
 class OptionalViews extends StatelessWidget {
   const OptionalViews({super.key});
@@ -37,12 +41,17 @@ class OptionalViews extends StatelessWidget {
             const SizedBox(height: 30,),
 
             Text(
-              'Let’s get started!\n Login or Register to continue',
+              '${AppLanguage.translations[
+              context.watch<LanguageCubit>().state.languageCode
+              ]?["lets_get_started"] ?? "Let\'s get started!"}\n'
+                  '${AppLanguage.translations[
+              context.watch<LanguageCubit>().state.languageCode
+              ]?["login_or_register_to_continue"] ?? "Login or Register to continue"}',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 16,                 // حجم الخط
-                fontWeight: FontWeight.w500,  // سمك الخط
-                color: Colors.grey[800],      // لون الخط
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[800],
               ),
             ),
           ],

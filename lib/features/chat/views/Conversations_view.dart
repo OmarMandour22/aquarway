@@ -49,32 +49,10 @@ class ConversationsView extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.chat_bubble_outline_rounded,
-                    size: 72,
-                    color: AppColors.grenblak.withOpacity(0.3),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'لا توجد محادثات بعد',
-                    style: TextStyle(
-                      color: Color(0xFF9E9E9E),
-                      fontSize: 15,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'تواصل مع أصحاب العقارات من صفحة العقار',
-                    style: TextStyle(
-                      color: Color(0xFFBDBDBD),
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
+            return const Center(
+              child: Text(
+                'لا توجد محادثات بعد',
+                style: TextStyle(color: Colors.grey),
               ),
             );
           }
@@ -119,89 +97,119 @@ class ConversationsView extends StatelessWidget {
                     image = data['image'] ?? image;
                   }
 
-                  final isLastMine =
-                      conv.lastSenderId == myUser.id;
-
-                  return ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 6,
+                  return StreamBuilder<int>(
+                    stream: repo.getUnreadCount(
+                      chatId: conv.id,
+                      myUid: myUser.id!,
                     ),
+                    builder: (context, snap) {
+                      final count = snap.data ?? 0;
 
-                    onTap: () async {
-                      final doc = await FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(otherId)
-                          .get();
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
 
-                      if (!context.mounted) return;
+                        onTap: () async {
+                          final doc = await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(otherId)
+                              .get();
 
-                      final otherUser = doc.exists
-                          ? UserModel.fromJson(doc.data()!)
-                          : UserModel(
-                        id: otherId,
-                        username: name,
-                        image: image,
-                      );
+                          if (!context.mounted) return;
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ChatScreen(
-                            myUser: myUser,
-                            otherUser: otherUser,
+                          final otherUser = doc.exists
+                              ? UserModel.fromJson(doc.data()!)
+                              : UserModel(
+                            id: otherId,
+                            username: name,
+                            image: image,
+                          );
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChatScreen(
+                                myUser: myUser,
+                                otherUser: otherUser,
+                              ),
+                            ),
+                          );
+                        },
+
+                        leading: CircleAvatar(
+                          radius: 26,
+                          backgroundColor:
+                          AppColors.grenblak.withOpacity(0.12),
+                          backgroundImage:
+                          image.isNotEmpty ? NetworkImage(image) : null,
+                          child: image.isEmpty
+                              ? Text(
+                            name.isNotEmpty
+                                ? name[0].toUpperCase()
+                                : 'U',
+                            style: const TextStyle(
+                              color: AppColors.grenblak,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          )
+                              : null,
+                        ),
+
+                        title: Text(
+                          name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                            color: Color(0xFF1A1A1A),
                           ),
+                        ),
+
+                        subtitle: Text(
+                          conv.lastMessage,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Color(0xFF757575),
+                            fontSize: 13,
+                          ),
+                        ),
+
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _formatDate(conv.lastMessageAt),
+                              style: const TextStyle(
+                                color: Color(0xFF9E9E9E),
+                                fontSize: 11.5,
+                              ),
+                            ),
+
+                            const SizedBox(width: 8),
+
+                            if (count > 0)
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(
+                                  "$count",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       );
                     },
-
-                    leading: CircleAvatar(
-                      radius: 26,
-                      backgroundColor:
-                      AppColors.grenblak.withOpacity(0.12),
-                      backgroundImage: image.isNotEmpty
-                          ? NetworkImage(image)
-                          : null,
-                      child: image.isEmpty
-                          ? Text(
-                        name.isNotEmpty
-                            ? name[0].toUpperCase()
-                            : 'U',
-                        style: const TextStyle(
-                          color: AppColors.grenblak,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      )
-                          : null,
-                    ),
-
-                    title: Text(
-                      name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                        color: Color(0xFF1A1A1A),
-                      ),
-                    ),
-
-                    subtitle: Text(
-                      conv.lastMessage,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFF757575),
-                        fontSize: 13,
-                      ),
-                    ),
-
-                    trailing: Text(
-                      _formatDate(conv.lastMessageAt),
-                      style: const TextStyle(
-                        color: Color(0xFF9E9E9E),
-                        fontSize: 11.5,
-                      ),
-                    ),
                   );
                 },
               );

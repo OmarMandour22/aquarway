@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../location/views/location-views.dart';
 import '../cubit/Property_cubit.dart';
 import '../cubit/Property_state.dart';
 import '../data/model/Property_model.dart';
@@ -17,6 +18,8 @@ class AddPropertyView extends StatelessWidget {
   final descController = TextEditingController();
   final locationController = TextEditingController();
   final priceController = TextEditingController();
+  double? selectedLat;
+  double? selectedLng;
 
   final availableRoomsController = TextEditingController();
   final availableBedsController = TextEditingController();
@@ -458,30 +461,7 @@ class AddPropertyView extends StatelessWidget {
 
                   const SizedBox(height:15),
 
-                  Row(
-                    children:[
 
-                      Expanded(
-                        child:_field(
-                          "Available Rooms",
-                          controller:
-                          availableRoomsController,
-                          isNumber:true,
-                        ),
-                      ),
-
-                      const SizedBox(width:10),
-
-                      Expanded(
-                        child:_field(
-                          "Available Beds",
-                          controller:
-                          availableBedsController,
-                          isNumber:true,
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
 
                 _field(
@@ -497,10 +477,33 @@ class AddPropertyView extends StatelessWidget {
                   maxLines:3,
                 ),
 
-                _field(
-                  "Location",
-                  controller:
-                  locationController,
+                Row(
+                  children: [
+                    Expanded(
+                      child: _field(
+                        "Location",
+                        controller: locationController,
+                      ),
+                    ),
+
+                    IconButton(
+                      icon: const Icon(Icons.location_on),
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LocationView(),
+                          ),
+                        );
+
+                        if (result != null) {
+                          locationController.text = result["address"];
+                          selectedLat = result["lat"];
+                          selectedLng = result["lng"];
+                        }
+                      },
+                    ),
+                  ],
                 ),
 
                 _field(

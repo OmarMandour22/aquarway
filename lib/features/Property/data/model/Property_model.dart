@@ -15,17 +15,24 @@ class PropertyModel {
   int? rooms;
   int? beds;
 
-  /// 🔥 NEW (availability system - added only)
+  /// 🔥 availability system
   int? totalRooms;
   int? availableRooms;
 
   int? totalBeds;
   int? availableBeds;
 
+  /// 🗺️ LOCATION (NEW)
+  double? lat;
+  double? lng;
+  String? address;
+
   List<String>? images;
   List<String>? videos;
 
   List<dynamic>? likes;
+  List<dynamic>? favorites;
+
   int? likesCount;
   int? favoritesCount;
   int? commentsCount;
@@ -47,16 +54,22 @@ class PropertyModel {
     this.status,
     this.rooms,
     this.beds,
-
-    /// 🔥 NEW
     this.totalRooms,
     this.availableRooms,
     this.totalBeds,
     this.availableBeds,
 
+    /// 🗺️ NEW
+    this.lat,
+    this.lng,
+    this.address,
+
     this.images,
     this.videos,
+
     this.likes,
+    this.favorites,
+
     this.likesCount,
     this.favoritesCount,
     this.commentsCount,
@@ -65,6 +78,9 @@ class PropertyModel {
     this.searchKeywords,
   });
 
+  /// =========================
+  /// FROM JSON
+  /// =========================
   factory PropertyModel.fromJson(Map<String, dynamic> json) {
     return PropertyModel(
       id: json['id'],
@@ -78,29 +94,36 @@ class PropertyModel {
       rooms: json['rooms'],
       beds: json['beds'],
 
-      /// 🔥 NEW (safe read)
       totalRooms: json['totalRooms'],
       availableRooms: json['availableRooms'],
       totalBeds: json['totalBeds'],
       availableBeds: json['availableBeds'],
 
+      /// 🗺️ SAFE CAST
+      lat: json['lat'] != null ? (json['lat'] as num).toDouble() : null,
+      lng: json['lng'] != null ? (json['lng'] as num).toDouble() : null,
+      address: json['address'],
+
       images: List<String>.from(json['images'] ?? []),
       videos: List<String>.from(json['videos'] ?? []),
 
       likes: json['likes'] ?? [],
+      favorites: json['favorites'] ?? [],
+
       likesCount: json['likesCount'] ?? 0,
       favoritesCount: json['favoritesCount'] ?? 0,
       commentsCount: json['commentsCount'] ?? 0,
 
       createdAt: json['createdAt'] ?? Timestamp.now(),
 
-      /// 🔥 search
       searchKey: json['searchKey'],
-      searchKeywords:
-      List<String>.from(json['searchKeywords'] ?? []),
+      searchKeywords: List<String>.from(json['searchKeywords'] ?? []),
     );
   }
 
+  /// =========================
+  /// TO JSON
+  /// =========================
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -114,23 +137,28 @@ class PropertyModel {
       'rooms': rooms,
       'beds': beds,
 
-      /// 🔥 NEW (write to Firestore)
       'totalRooms': totalRooms,
       'availableRooms': availableRooms,
       'totalBeds': totalBeds,
       'availableBeds': availableBeds,
 
+      /// 🗺️ LOCATION
+      'lat': lat,
+      'lng': lng,
+      'address': address,
+
       'images': images ?? [],
       'videos': videos ?? [],
 
       'likes': likes ?? [],
+      'favorites': favorites ?? [],
+
       'likesCount': likesCount ?? 0,
       'favoritesCount': favoritesCount ?? 0,
       'commentsCount': commentsCount ?? 0,
 
       'createdAt': FieldValue.serverTimestamp(),
 
-      /// 🔥 search
       'searchKey': searchKey,
       'searchKeywords': searchKeywords ?? [],
     };

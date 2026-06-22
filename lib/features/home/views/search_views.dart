@@ -5,6 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../Property/cubit/Property_cubit.dart';
 import '../../Property/data/model/Property_model.dart';
 import '../../../core/widgets/property_card.dart';
+import '../../auth/data/model/user_model.dart';
+import '../../auth/data/repo/auth_repo.dart';
+import '../../profile/views/profile_views.dart';
 
 class SearchView extends StatefulWidget {
   const SearchView({super.key});
@@ -15,6 +18,7 @@ class SearchView extends StatefulWidget {
 
 class _SearchViewState extends State<SearchView> {
   final TextEditingController searchController = TextEditingController();
+  List<UserModel> searchedUsers = [];
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +36,12 @@ class _SearchViewState extends State<SearchView> {
             padding: const EdgeInsets.all(10),
             child: TextField(
               controller: searchController,
-              onChanged: (value) {
+              onChanged: (value) async {
                 cubit.searchText = value;
+
+                searchedUsers =
+                await AuthRepo().searchUsersCombined(value);
+
                 setState(() {});
               },
               decoration: InputDecoration(
@@ -135,6 +143,52 @@ class _SearchViewState extends State<SearchView> {
           ),
 
           const SizedBox(height: 10),
+
+
+
+          if (searchedUsers.isNotEmpty)
+            Container(
+              constraints: const BoxConstraints(maxHeight: 250),
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: searchedUsers.length,
+                itemBuilder: (_, i) {
+                  final user = searchedUsers[i];
+
+                  return Card(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage:
+                        user.image != null && user.image!.isNotEmpty
+                            ? NetworkImage(user.image!)
+                            : null,
+                        child: user.image == null ||
+                            user.image!.isEmpty
+                            ? const Icon(Icons.person)
+                            : null,
+                      ),
+                      title: Text(user.username ?? "Unknown User"),
+                      subtitle: Text(user.email ?? ""),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ProfileView(
+                              uid: user.id,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+
 
           /// 🏠 RESULTS (FIXED STREAM WITHOUT REPO ISSUE)
           Expanded(

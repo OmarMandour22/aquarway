@@ -210,21 +210,21 @@ class PropertyCubit extends Cubit<PropertyState> {
   }
 
 
-  Future<void> updateAvailableRooms(String id, int value) async {
+  Future<void> updateRooms(String id, int value) async {
     await FirebaseFirestore.instance
         .collection('properties')
         .doc(id)
         .update({
-      'availableRooms': value,
+      'rooms': value,
     });
   }
 
-  Future<void> updateAvailableBeds(String id, int value) async {
+  Future<void> updateBeds(String id, int value) async {
     await FirebaseFirestore.instance
         .collection('properties')
         .doc(id)
         .update({
-      'availableBeds': value,
+      'beds': value,
     });
   }
 

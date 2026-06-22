@@ -34,4 +34,26 @@ class LoginCubit extends Cubit<LoginState> {
           (userModel) => emit(LoginSuccess(userModel: userModel)),
     );
   }
+
+
+
+  void resetPassword() async {
+    if (email.text.isEmpty) return;
+
+    emit(ResetPasswordLoading());
+
+    final result = await AuthRepo().resetPassword(
+      email: email.text.trim(),
+    );
+
+    result.fold(
+          (error) => emit(
+        ResetPasswordError(error: error),
+      ),
+          (_) => emit(
+        ResetPasswordSuccess(),
+      ),
+    );
+  }
+
 }

@@ -8,6 +8,8 @@ import '../../Property/cubit/Property_cubit.dart';
 import '../../Property/data/model/Property_model.dart';
 import '../../Property/data/repo/Property_repo.dart';
 import '../../Property/views/add_Property_views.dart';
+import '../../language/cubit/language_cubit.dart';
+import '../../language/views/app_language.dart';
 import '../cubit/profile_cubit/profile_cubit.dart';
 import '../cubit/profile_cubit/profile_state.dart';
 import 'EditProfileView.dart';
@@ -54,7 +56,18 @@ class ProfileView extends StatelessWidget {
           final propertyCubit = context.read<PropertyCubit>();
 
           return Scaffold(
-            appBar: AppBar(title: const Text("Profile")),
+            appBar: AppBar(title:
+
+            Text(
+              AppLanguage.translations[
+              BlocProvider.of<LanguageCubit>(context)
+                  .state
+                  .languageCode
+              ]?["profile"] ?? "Profile",
+            )
+
+
+            ),
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -97,7 +110,13 @@ class ProfileView extends StatelessWidget {
                                     Column(
                                       children: [
                                         Text("$posts"),
-                                        const Text("Posts"),
+                                        Text(
+                                          AppLanguage.translations[
+                                          BlocProvider.of<LanguageCubit>(context)
+                                              .state
+                                              .languageCode
+                                          ]?["posts"] ?? "Posts",
+                                        ),
                                       ],
                                     ),
 
@@ -114,7 +133,13 @@ class ProfileView extends StatelessWidget {
                                       child: Column(
                                         children: [
                                           Text("${user.followersCount ?? 0}"),
-                                          const Text("Followers"),
+                                          Text(
+                                            AppLanguage.translations[
+                                            BlocProvider.of<LanguageCubit>(context)
+                                                .state
+                                                .languageCode
+                                            ]?["followers"] ?? "Followers",
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -132,7 +157,13 @@ class ProfileView extends StatelessWidget {
                                       child: Column(
                                         children: [
                                           Text("${user.followingCount ?? 0}"),
-                                          const Text("Following"),
+                                          Text(
+                                            AppLanguage.translations[
+                                            BlocProvider.of<LanguageCubit>(context)
+                                                .state
+                                                .languageCode
+                                            ]?["following"] ?? "Following",
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -150,7 +181,14 @@ class ProfileView extends StatelessWidget {
 
                             const SizedBox(height: 10),
 
-                            Text(user.phone ?? "Phone not added"),
+                            Text(
+                              user.phone ??
+                                  (AppLanguage.translations[
+                                  BlocProvider.of<LanguageCubit>(context)
+                                      .state
+                                      .languageCode
+                                  ]?["phone_not_added"] ?? "Phone not added"),
+                            ),
                           ],
                         ),
                       ),
@@ -175,8 +213,21 @@ class ProfileView extends StatelessWidget {
                   Card(
                     child: ListTile(
                       leading: const Icon(Icons.info_outline),
-                      title: const Text("Description"),
-                      subtitle: Text(user.bio ?? "No description"),
+                      title:  Text(
+                    AppLanguage.translations[
+                    BlocProvider.of<LanguageCubit>(context)
+                        .state
+                        .languageCode
+                    ]?["description"] ?? "Description",
+                  ),
+                      subtitle: Text(
+                    user.bio ??
+                    (AppLanguage.translations[
+                        BlocProvider.of<LanguageCubit>(context)
+                        .state
+                        .languageCode
+                      ]?["no_description"] ?? "No description"),
+            ),
                     ),
                   ),
 
@@ -186,8 +237,21 @@ class ProfileView extends StatelessWidget {
                   Card(
                     child: ListTile(
                       leading: const Icon(Icons.location_on_outlined),
-                      title: const Text("Address"),
-                      subtitle: Text(user.address ?? "No address"),
+                      title: Text(
+                        AppLanguage.translations[
+                        BlocProvider.of<LanguageCubit>(context)
+                            .state
+                            .languageCode
+                        ]?["address"] ?? "Address",
+                      ),
+                      subtitle: Text(
+                        user.address ??
+                            (AppLanguage.translations[
+                            BlocProvider.of<LanguageCubit>(context)
+                                .state
+                                .languageCode
+                            ]?["no_address"] ?? "No address"),
+                      ),
                     ),
                   ),
 
@@ -216,7 +280,13 @@ class ProfileView extends StatelessWidget {
                             ),
                           );
                         },
-                        child: const Text("Edit Profile"),
+                        child: Text(
+                          AppLanguage.translations[
+                          BlocProvider.of<LanguageCubit>(context)
+                              .state
+                              .languageCode
+                          ]?["edit_profile"] ?? "Edit Profile",
+                        ),
                       )
                           : ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -231,7 +301,17 @@ class ProfileView extends StatelessWidget {
                           }
                         },
                         child: Text(
-                          cubit.isFollowing ? "Unfollow" : "Follow",
+                          cubit.isFollowing
+                              ? (AppLanguage.translations[
+                          BlocProvider.of<LanguageCubit>(context)
+                              .state
+                              .languageCode
+                          ]?["unfollow"] ?? "Unfollow")
+                              : (AppLanguage.translations[
+                          BlocProvider.of<LanguageCubit>(context)
+                              .state
+                              .languageCode
+                          ]?["follow"] ?? "Follow"),
                         ),
                       ),
                     ),
@@ -262,7 +342,13 @@ class ProfileView extends StatelessWidget {
                           );
                         },
                         icon: const Icon(Icons.add, color: Colors.white),
-                        label: const Text("Add Property"),
+                        label: Text(
+                          AppLanguage.translations[
+                          BlocProvider.of<LanguageCubit>(context)
+                              .state
+                              .languageCode
+                          ]?["add_property"] ?? "Add Property",
+                        ),
                       ),
                     ),
                   ),
@@ -271,7 +357,11 @@ class ProfileView extends StatelessWidget {
 
                   /// ================= PROPERTIES =================
                   Text(
-                    "My Properties",
+                    AppLanguage.translations[
+                    BlocProvider.of<LanguageCubit>(context)
+                        .state
+                        .languageCode
+                    ]?["my_properties"] ?? "My Properties",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -291,7 +381,13 @@ class ProfileView extends StatelessWidget {
 
                       final list = snapshot.data!;
                       if (list.isEmpty) {
-                        return const Text("No properties yet");
+                        return Text(
+                          AppLanguage.translations[
+                          BlocProvider.of<LanguageCubit>(context)
+                              .state
+                              .languageCode
+                          ]?["no_properties"] ?? "No properties yet",
+                        );
                       }
 
                       return ListView.builder(

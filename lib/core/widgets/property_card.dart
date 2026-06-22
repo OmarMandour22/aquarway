@@ -1,3 +1,4 @@
+import 'package:aquarway/core/utils/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:aquarway/features/chat/views/chat_screen.dart';
 import '../../features/Property/cubit/Property_cubit.dart';
 import '../../features/Property/data/model/Property_model.dart';
 import '../../features/Property/views/add_Property_views.dart';
+import '../../features/chat/data/repo/chat_repo.dart';
 import '../../features/home/views/comments_view.dart';
 
 class PropertyCard extends StatefulWidget {
@@ -239,39 +241,96 @@ class _PropertyCardState extends State<PropertyCard> {
                 Text("Status: ${widget.model.status ?? ""}"),
 
                 if (widget.model.rooms != null)
-                  Text("Rooms: ${widget.model.rooms}"),
+                  Row(
+                    children: [
+                      const Text(
+                        "Rooms: ",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+
+                      if (isOwner)
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle, color: Colors.red),
+                          onPressed: () {
+                            int current = widget.model.rooms ?? 0;
+
+                            if (current > 0) {
+                              PropertyCubit.get(context)
+                                  .updateRooms(widget.model.id!, current - 1);
+                            }
+                          },
+                        ),
+
+                      Text("${widget.model.rooms}"),
+
+                      if (isOwner)
+                        IconButton(
+                          icon: const Icon(Icons.add_circle, color: Colors.green),
+                          onPressed: () {
+                            int current = widget.model.rooms ?? 0;
+
+                            PropertyCubit.get(context)
+                                .updateRooms(widget.model.id!, current + 1);
+                          },
+                        ),
+                    ],
+                  ),
 
                 if (widget.model.beds != null)
-                  Text("Beds: ${widget.model.beds}"),
+                  Row(
+                    children: [
+                      const Text(
+                        "Beds: ",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
 
-                /// 🔥 NEW (availability system – added only)
-                if (widget.model.totalRooms != null ||
-                    widget.model.availableRooms != null) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    "Available Rooms: ${widget.model.availableRooms ?? widget.model.rooms ?? 0}",
-                  ),
-                ],
+                      if (isOwner)
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle, color: Colors.red),
+                          onPressed: () {
+                            int current = widget.model.beds ?? 0;
 
-                if (widget.model.totalBeds != null ||
-                    widget.model.availableBeds != null)
-                  Text(
-                    "Available Beds: ${widget.model.availableBeds ?? widget.model.beds ?? 0}",
+                            if (current > 0) {
+                              PropertyCubit.get(context)
+                                  .updateBeds(widget.model.id!, current - 1);
+                            }
+                          },
+                        ),
+
+                      Text("${widget.model.beds}"),
+
+                      if (isOwner)
+                        IconButton(
+                          icon: const Icon(Icons.add_circle, color: Colors.green),
+                          onPressed: () {
+                            int current = widget.model.beds ?? 0;
+
+                            PropertyCubit.get(context)
+                                .updateBeds(widget.model.id!, current + 1);
+                          },
+                        ),
+                    ],
                   ),
 
                 const SizedBox(height: 10),
 
                 /// ================= ACTIONS =================
-                Row(
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 5,
                   children: [
 
+                    /// LIKE
                     IconButton(
                       icon: Icon(
                         widget.model.likes != null &&
                             widget.model.likes!.contains(uid)
                             ? Icons.favorite
                             : Icons.favorite_border,
-                        color: Colors.red,
+                        color: widget.model.likes != null &&
+                            widget.model.likes!.contains(uid)
+                            ? Colors.red
+                            : Colors.grey, // لون البوردر قبل اللايك
                       ),
                       onPressed: () {
                         PropertyCubit.get(context)
@@ -282,22 +341,7 @@ class _PropertyCardState extends State<PropertyCard> {
 
                     const SizedBox(width: 10),
 
-                    IconButton(
-                      icon: Icon(
-                        (widget.model.favoritesCount ?? 0) > 0
-                            ? Icons.star
-                            : Icons.star_border,
-                        color: Colors.amber,
-                      ),
-                      onPressed: () {
-                        PropertyCubit.get(context)
-                            .toggleFavorite(widget.model, uid);
-                      },
-                    ),
-                    Text("${widget.model.favoritesCount ?? 0}"),
-
-                    const SizedBox(width: 10),
-
+                    /// COMMENT
                     IconButton(
                       icon: const Icon(Icons.comment),
                       onPressed: () {
@@ -311,15 +355,38 @@ class _PropertyCardState extends State<PropertyCard> {
                         );
                       },
                     ),
-
                     Text("${widget.model.commentsCount ?? 0}"),
 
                     const SizedBox(width: 10),
 
+                    /// FAVORITE
+                    IconButton(
+                      icon: Icon(
+                        widget.model.favorites != null &&
+                            widget.model.favorites!.contains(uid)
+                            ? Icons.bookmark
+                            : Icons.bookmark_border,
+                        color: widget.model.favorites != null &&
+                            widget.model.favorites!.contains(uid)
+                            ? Colors.amber
+                            : Colors.grey,
+                        size: 28,
+                      ),
+                      onPressed: () {
+                        PropertyCubit.get(context)
+                            .toggleFavorite(widget.model, uid);
+                      },
+                    ),
+
+                    Text("${widget.model.favoritesCount ?? 0}"),
+
+                    const SizedBox(width: 10),
+
+                    /// CHAT
                     IconButton(
                       icon: const Icon(
-                        Icons.chat_bubble_outline,
-                        color: Colors.green,
+                        Icons.mark_unread_chat_alt_outlined,
+                        color: Colors.black,
                       ),
                       onPressed: () async {
                         final doc = await FirebaseFirestore.instance
@@ -338,8 +405,8 @@ class _PropertyCardState extends State<PropertyCard> {
 
                         final myUser = UserModel(
                           id: uid,
-                          username: FirebaseAuth
-                              .instance.currentUser?.displayName,
+                          username:
+                          FirebaseAuth.instance.currentUser?.displayName,
                         );
 
                         Navigator.push(
@@ -353,8 +420,41 @@ class _PropertyCardState extends State<PropertyCard> {
                         );
                       },
                     ),
+
+                    const SizedBox(width: 10),
+
+                    /// BOOKING BUTTON
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.grenblak,
+                      ),
+                      icon: const Icon(Icons.book_online, size: 18),
+                      label: const Text(
+                        "طلب حجز",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () async {
+                        final uid = FirebaseAuth.instance.currentUser!.uid;
+
+                        final myDoc = await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(uid)
+                            .get();
+
+                        final myName = myDoc.data()?['name'] ?? "User";
+
+                        final repo = ChatRepo();
+
+                        await repo.sendBookingRequest(
+                          myUid: uid,
+                          myName: myName,
+                          ownerId: widget.model.ownerId!,
+                          propertyTitle: widget.model.title ?? "",
+                        );
+                      },
+                    ),
                   ],
-                ),
+                )
               ],
             ),
           ),

@@ -159,6 +159,11 @@ class PropertyRepo {
       String text,
       String uid,
       ) async {
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .get();
+
     await _firestore
         .collection('properties')
         .doc(propertyId)
@@ -166,10 +171,15 @@ class PropertyRepo {
         .add({
       'text': text,
       'userId': uid,
+      'username': userDoc.data()?['username'] ?? '',
+      'userImage': userDoc.data()?['image'] ?? '',
       'createdAt': FieldValue.serverTimestamp(),
     });
 
-    await _firestore.collection('properties').doc(propertyId).update({
+    await _firestore
+        .collection('properties')
+        .doc(propertyId)
+        .update({
       'commentsCount': FieldValue.increment(1),
     });
   }

@@ -74,6 +74,8 @@ class AuthRepo {
         username: username,
         email: email,
         image: imageUrl,
+        searchKeywords:
+        generateSearchKeywords(username ?? ''),
       );
 
       await FirebaseFirestore.instance
@@ -181,7 +183,11 @@ class AuthRepo {
 
       Map<String, dynamic> data = {};
 
-      if (username != null) data['username'] = username;
+      if (username != null) {
+        data['username'] = username;
+        data['searchKeywords'] =
+            generateSearchKeywords(username);
+      }
       if (phone != null) data['phone'] = phone;
       if (bio != null) data['bio'] = bio;
       if (address != null) data['address'] = address;
@@ -361,6 +367,39 @@ class AuthRepo {
       return [];
     }
   }
+
+
+  List<String> generateSearchKeywords(String text) {
+    text = text.toLowerCase().trim();
+
+    List<String> keywords = [];
+
+    for (int i = 1; i <= text.length; i++) {
+      keywords.add(text.substring(0, i));
+    }
+
+    return keywords;
+  }
+
+
+
+  Future<Either<String, bool>> resetPassword({
+    required String email,
+  }) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: email,
+      );
+
+      return const Right(true);
+    } on FirebaseAuthException catch (e) {
+      return Left(e.message ?? "Failed to send reset email");
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+
 
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();

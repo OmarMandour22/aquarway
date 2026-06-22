@@ -191,4 +191,73 @@ class ChatRepo {
       }
     }
   }
+
+
+  Future<void> sendBookingRequest({
+    required String myUid,
+    required String myName,
+    required String ownerId,
+    required String propertyTitle,
+  }) async {
+    final chatId = ChatConversationModel.buildChatId(
+      myUid,
+      ownerId,
+    );
+
+    final fire = FirebaseFirestore.instance;
+
+    final messageText =
+        "📩 $myName طلب حجز للعقار: $propertyTitle";
+
+    /// 💬 message
+    final message = ChatMessageModel(
+      id: '',
+      senderId: myUid,
+      text: messageText,
+      createdAt: DateTime.now(),
+    );
+
+    /// 1️⃣ save message
+    await fire
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .add(message.toJson());
+
+    /// 2️⃣ IMPORTANT: update conversation doc (عشان يظهر في ConversationsView)
+    await fire.collection('chats').doc(chatId).set({
+      "participantIds": [myUid, ownerId],
+
+      "participantNames": {
+        myUid: myName,
+      },
+
+      "participantImages": {},
+
+      "lastMessage": messageText,
+      "lastMessageAt": FieldValue.serverTimestamp(),
+      "lastSenderId": myUid,
+    }, SetOptions(merge: true));
+  }
+
+
+
+  Stream<int> getUnreadCount({
+    required String chatId,
+    required String myUid,
+  }) {
+    return FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .map((snap) {
+      return snap.docs
+          .where((d) => d['senderId'] != myUid)
+          .length;
+    });
+  }
+
+
 }

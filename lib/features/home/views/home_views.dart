@@ -9,6 +9,8 @@ import '../../Property/data/model/Property_model.dart';
 import '../../Property/data/repo/Property_repo.dart';
 import '../../../core/widgets/property_card.dart';
 import '../../auth/data/model/user_model.dart';
+import '../../language/cubit/language_cubit.dart';
+import '../../language/views/app_language.dart';
 import '../cubit/home_cubit/home_cubit.dart';
 import '../cubit/home_cubit/home_state.dart';
 
@@ -71,14 +73,86 @@ class HomeViews extends StatelessWidget {
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: [
-                      _chip(context, "All", "all", cubit),
-                      _chip(context, "Villas", "villa", cubit),
-                      _chip(context, "Apartments", "apartment", cubit),
-                      _chip(context, "Land", "land", cubit),
-                      _chip(context, "Hotels", "hotel", cubit),
-                      _chip(context, "Shops", "shop", cubit),
-                      _chip(context, "Training", "training", cubit),
-                      _chip(context, "Expat", "expat", cubit),
+                      _chip(
+                        context,
+                        AppLanguage.translations[
+                        BlocProvider.of<LanguageCubit>(context)
+                            .state
+                            .languageCode
+                        ]?["all"] ?? "All",
+                        "all",
+                        cubit,
+                      ),
+                      _chip(
+                        context,
+                        AppLanguage.translations[
+                        BlocProvider.of<LanguageCubit>(context)
+                            .state
+                            .languageCode
+                        ]?["villas"] ?? "Villas",
+                        "villa",
+                        cubit,
+                      ),
+                      _chip(
+                        context,
+                        AppLanguage.translations[
+                        BlocProvider.of<LanguageCubit>(context)
+                            .state
+                            .languageCode
+                        ]?["apartments"] ?? "Apartments",
+                        "apartment",
+                        cubit,
+                      ),
+                      _chip(
+                        context,
+                        AppLanguage.translations[
+                        BlocProvider.of<LanguageCubit>(context)
+                            .state
+                            .languageCode
+                        ]?["land"] ?? "Land",
+                        "land",
+                        cubit,
+                      ),
+                      _chip(
+                        context,
+                        AppLanguage.translations[
+                        BlocProvider.of<LanguageCubit>(context)
+                            .state
+                            .languageCode
+                        ]?["hotels"] ?? "Hotels",
+                        "hotel",
+                        cubit,
+                      ),
+                      _chip(
+                        context,
+                        AppLanguage.translations[
+                        BlocProvider.of<LanguageCubit>(context)
+                            .state
+                            .languageCode
+                        ]?["shops"] ?? "Shops",
+                        "shop",
+                        cubit,
+                      ),
+                      _chip(
+                        context,
+                        AppLanguage.translations[
+                        BlocProvider.of<LanguageCubit>(context)
+                            .state
+                            .languageCode
+                        ]?["training"] ?? "Training",
+                        "training",
+                        cubit,
+                      ),
+                      _chip(
+                        context,
+                        AppLanguage.translations[
+                        BlocProvider.of<LanguageCubit>(context)
+                            .state
+                            .languageCode
+                        ]?["expat"] ?? "Expat",
+                        "expat",
+                        cubit,
+                      ),
                     ],
                   ),
                 ),
@@ -112,8 +186,15 @@ class HomeViews extends StatelessWidget {
                           }
 
                           if (list.isEmpty) {
-                            return const Center(
-                              child: Text("No properties found"),
+                            return  Center(
+                              child: Text(
+                                AppLanguage.translations[
+                                BlocProvider.of<LanguageCubit>(context)
+                                    .state
+                                    .languageCode
+                                ]?["no_properties_found"] ??
+                                    "No properties found",
+                              ),
                             );
                           }
 
