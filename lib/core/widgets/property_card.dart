@@ -24,6 +24,7 @@ class PropertyCard extends StatefulWidget {
 class _PropertyCardState extends State<PropertyCard> {
   final PageController _controller = PageController();
   int currentIndex = 0;
+  bool isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -231,6 +232,47 @@ class _PropertyCardState extends State<PropertyCard> {
 
                 Text(widget.model.title ?? "",
                     style: const TextStyle(fontWeight: FontWeight.bold)),
+
+                const SizedBox(height: 6),
+
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.model.description ?? "",
+                      maxLines: isExpanded ? null : 3,
+                      overflow: isExpanded
+                          ? TextOverflow.visible
+                          : TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 14,
+                      ),
+                    ),
+
+                    if ((widget.model.description ?? "").length > 100)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isExpanded = !isExpanded;
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            isExpanded ? "عرض أقل" : "قراءة المزيد",
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+
+                const SizedBox(height: 6),
+
 
                 Text(widget.model.location ?? ""),
                 Text("${widget.model.price ?? ""} جنيه"),

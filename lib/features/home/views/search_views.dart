@@ -88,6 +88,8 @@ class _SearchViewState extends State<SearchView> {
                           "فيلات",
                           "محلات",
                           "اراضي",
+                          "مراكز تدريب",
+                          "شقق للمغتربين",
                         ]
                             .map((e) => DropdownMenuItem(
                           value: e,
@@ -148,7 +150,7 @@ class _SearchViewState extends State<SearchView> {
 
           if (searchedUsers.isNotEmpty)
             Container(
-              constraints: const BoxConstraints(maxHeight: 250),
+              constraints: const BoxConstraints(maxHeight: 150),
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: searchedUsers.length,

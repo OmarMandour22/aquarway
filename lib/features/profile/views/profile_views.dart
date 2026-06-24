@@ -92,85 +92,77 @@ class ProfileView extends StatelessWidget {
                             const SizedBox(height: 15),
 
                             /// POSTS / FOLLOWERS / FOLLOWING
-                            StreamBuilder<DocumentSnapshot>(
-                              stream: FirebaseFirestore.instance
-                                  .collection('users')
-                                  .doc(currentUid)
-                                  .snapshots(),
-                              builder: (context, snapshot) {
-                                final data = snapshot.data?.data()
-                                as Map<String, dynamic>?;
+                          StreamBuilder<List<PropertyModel>>(
+                            stream: propertyCubit.myPropertiesStream(currentUid),
+                            builder: (context, snapshot) {
 
-                                final posts = data?['postsCount'] ?? 0;
+                              final posts = snapshot.data?.length ?? 0;
 
-                                return Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Column(
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Text("$posts"),
+                                      Text(
+                                        AppLanguage.translations[
+                                        BlocProvider.of<LanguageCubit>(context)
+                                            .state
+                                            .languageCode
+                                        ]?["posts"] ?? "Posts",
+                                      ),
+                                    ],
+                                  ),
+
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => FollowersView(uid: currentUid),
+                                        ),
+                                      );
+                                    },
+                                    child: Column(
                                       children: [
-                                        Text("$posts"),
+                                        Text("${user.followersCount ?? 0}"),
                                         Text(
                                           AppLanguage.translations[
                                           BlocProvider.of<LanguageCubit>(context)
                                               .state
                                               .languageCode
-                                          ]?["posts"] ?? "Posts",
+                                          ]?["followers"] ?? "Followers",
                                         ),
                                       ],
                                     ),
+                                  ),
 
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                FollowersView(uid: currentUid),
-                                          ),
-                                        );
-                                      },
-                                      child: Column(
-                                        children: [
-                                          Text("${user.followersCount ?? 0}"),
-                                          Text(
-                                            AppLanguage.translations[
-                                            BlocProvider.of<LanguageCubit>(context)
-                                                .state
-                                                .languageCode
-                                            ]?["followers"] ?? "Followers",
-                                          ),
-                                        ],
-                                      ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => FollowingView(uid: currentUid),
+                                        ),
+                                      );
+                                    },
+                                    child: Column(
+                                      children: [
+                                        Text("${user.followingCount ?? 0}"),
+                                        Text(
+                                          AppLanguage.translations[
+                                          BlocProvider.of<LanguageCubit>(context)
+                                              .state
+                                              .languageCode
+                                          ]?["following"] ?? "Following",
+                                        ),
+                                      ],
                                     ),
-
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                FollowingView(uid: currentUid),
-                                          ),
-                                        );
-                                      },
-                                      child: Column(
-                                        children: [
-                                          Text("${user.followingCount ?? 0}"),
-                                          Text(
-                                            AppLanguage.translations[
-                                            BlocProvider.of<LanguageCubit>(context)
-                                                .state
-                                                .languageCode
-                                            ]?["following"] ?? "Following",
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
 
                             const SizedBox(height: 10),
 
